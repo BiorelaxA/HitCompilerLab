@@ -1,0 +1,8 @@
+{
+    "C_Cpp.errorSquiggles": "enabled",
+    "files.associations": {
+        "treenode.h": "c",
+        "stdlib.h": "c",
+        "stdio.h": "c"
+    }
+}
