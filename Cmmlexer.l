@@ -106,7 +106,6 @@ ERROR .
 {ID} { yylval.node_ptr=create_node(ID,yylineno,0,1); return ID; }
 
 {ID_ERROR} { readError(create_node(ID_ERROR,yylineno,0,1)); }
-{INT_ERROR} { readError(create_node(INT_ERROR,yylineno,0,1)); }
 {FLOAT_ERROR} { readError(create_node(FLOAT_ERROR,yylineno,0,1)); }
 {ERROR} { readError(create_node(ERROR,yylineno,0,1)); has_error=1;}
 

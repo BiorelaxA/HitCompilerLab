@@ -2010,5 +2010,5 @@ yyreturnlab:
 #line 219 "syntax.y"
 
 void yyerror(const char *s) {
-    fprintf(stderr, "", yylineno, s);
+    fprintf(stderr," ");
 }

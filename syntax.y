@@ -218,5 +218,5 @@ Args:
 
 %%
 void yyerror(const char *s) {
-    fprintf(stderr, "", yylineno, s);
+    fprintf(stderr," ");
 }
