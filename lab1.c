@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-23 11:37:03
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-24 15:35:49
+ * @LastEditTime: 2025-03-25 18:39:05
  * @FilePath: /Lab/lab1.c
  * @Description: main file for lab1
  * 
