@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-23 19:50:38
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-24 15:34:56
+ * @LastEditTime: 2025-03-27 16:47:53
  * @FilePath: /Lab/include/TreeNode.h
  * @Description: Treenode.h file
  * 
@@ -11,6 +11,7 @@
 #ifndef TREENODE_H
 #define TREENODE_H
 #include <stdio.h>
+#include "SemanticInfo.h"
 struct TreeNode
 {
     int token;       // 词法单元类型
@@ -26,6 +27,9 @@ struct TreeNode
     int child_count;             // 当前子节点数量
     int capacity;                // 数组当前容量
     int issemanticValue;///用于判断是否为非终结符号
+    //用于定义每个符号的语义
+    SemanticInfo_ptr SemanticInfo;
+
 };
 
 typedef struct TreeNode* TreeNode_ptr;

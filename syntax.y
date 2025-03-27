@@ -74,6 +74,7 @@ Program:
     ExtDefList                                {$$=create_node(PROGRAM,@$.first_line,1,0);add_children($$,$1);set_root_node($$);}       
     ;   
 
+//global variale
 ExtDefList:
     ExtDef ExtDefList                         {$$=create_node(EXT_DEF_LIST,@$.first_line,2,0);add_children($$,$1);add_children($$,$2);}       
     | /* empty */                             {$$=create_node(EXT_DEF_LIST,@$.first_line,0,0);}      

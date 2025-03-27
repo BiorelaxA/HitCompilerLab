@@ -3,6 +3,7 @@
 #include <string.h>
 #include "../include/TreeNode.h"
 #include "../syntax.tab.h"
+#include "../include/SemanticInfo.h"
 
 
 char GrammarSymbolNames[ARGS - PROGRAM + 1][20] = {
@@ -65,35 +66,6 @@ char TokenNames[WHILE - INT + 1][20] = {
 extern char* yytext;
 TreeNode_ptr root=NULL;
 /// @brief 用于创建树中节点，token是文法符号的属性，由于basion为LALR统一采用综合属性 linum为节点所在位置
-/// linenum由yylineno记录
-// TreeNode_ptr create_node(int token, int linenum,int child_count,int issamanticValue) {
-//     printf("%d",token);
-//     TreeNode_ptr node=malloc(sizeof(TreeNode));
-//     if (node == NULL) {
-//         fprintf(stderr, "Memory allocation failed in create_node\n");
-//         exit(EXIT_FAILURE);
-//     }
-//     node->token=token;
-//     node->linenum=linenum;
-//     switch (token) {
-//         case ID:
-//             node->ID = strdup(yytext);
-//             break;
-//         case INT:
-//             node->intval = atoi(yytext);
-//             break;
-//         case FLOAT:
-//             node->floatval = strtof(yytext, NULL);
-//             break;
-//         default:
-//             break;
-//     }
-//     node->children=malloc(child_count*sizeof(TreeNode_ptr));
-//     node->child_count=0;
-//     node->issemanticValue=issamanticValue;
-//     return node;
-// }
-
 TreeNode_ptr create_node(int token, int linenum, int child_count, int issamanticValue) {
     TreeNode_ptr node = malloc(sizeof(TreeNode));
     if (node == NULL) {
@@ -143,7 +115,7 @@ TreeNode_ptr create_node(int token, int linenum, int child_count, int issamantic
         }
         node->child_count = 0;
     }
-
+    node->SemanticInfo=create_semanticinfo(token,get_name(token,issamanticValue));
     return node;
 }
 // void add_children(TreeNode_ptr father,TreeNode_ptr child){
@@ -167,6 +139,17 @@ void add_children(TreeNode_ptr father, TreeNode_ptr child) {
 
 void set_root_node(TreeNode_ptr node){
     root=node;
+}
+
+const char* get_name(int token,int issemantic){
+    if (issemantic)
+    {
+        return get_semantic_name(token);
+    }
+    else{
+        return get_token_name(token);
+    }
+    
 }
 
 const char* get_semantic_name(int token){
