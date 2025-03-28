@@ -1,30 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-// 假设文法符号的语义信息结构体
-typedef struct {
-    int type;       // 符号类型
-    char* name;     // 符号名称
-    // 可添加其他字段
-} SemanticInfo;
-
-// 哈希表节点结构体
-typedef struct HashNode {
-    int key;                // token（键）
-    SemanticInfo value;     // 语义信息（值）
-    struct HashNode* next;  // 链表解决哈希冲突
-} HashNode;
-
-// 哈希表结构体
-typedef struct {
-    HashNode** buckets;  // 桶数组
-    int size;            // 桶的数量
-    int count;           // 当前元素数量（可选）
-} HashTable;
+#include "../include/SemanticInfo.h"
+#include "../include/HashTable.h"
 
 // 哈希函数：根据键计算桶的索引
-int hash_function(int key, int table_size) {
-    return key % table_size;
+//todo 建议使用指导书中的，这样冲突少
+int hash_map(char* name){
+    int val=0;
+    int i;
+    for (;*name;++name){
+        val=(val<<2)+*name;
+        if (i=val&~0x5f)
+        {
+            val=(val^(i>>12))&0x5f;
+        }
+    }
+    return val;
 }
 
 // 创建哈希表
@@ -42,15 +33,17 @@ HashTable* create_hash_table(int size) {
     return table;
 }
 
-// 插入键值对（如果存在则更新值）
-void hash_table_insert(HashTable* table, int key, SemanticInfo value) {
-    int index = hash_function(key, table->size);
+/// 插入键值对（如果存在则更新值）
+void hash_table_insert(HashTable* table, SemanticInfo_ptr value) {
+    int index = hash_map(value->name);
+    //token的数值存入token
+    int key=value->Type_id;
     HashNode* current = table->buckets[index];
 
-    // 检查是否已存在相同key
+    // 检查是否已存在相同key,直到查完
     while (current) {
         if (current->key == key) {
-            current->value = value;  // 更新值
+            //todo printerror
             return;
         }
         current = current->next;
@@ -81,27 +74,28 @@ SemanticInfo* hash_table_lookup(HashTable* table, int key) {
     return NULL;
 }
 
-// 删除键值对
-void hash_table_delete(HashTable* table, int key) {
-    int index = hash_function(key, table->size);
-    HashNode* current = table->buckets[index];
-    HashNode* prev = NULL;
+//大概率用不到
+// // 删除键值对
+// void hash_table_delete(HashTable* table, int key) {
+//     int index = hash_function(key, table->size);
+//     HashNode* current = table->buckets[index];
+//     HashNode* prev = NULL;
 
-    while (current) {
-        if (current->key == key) {
-            if (prev) {
-                prev->next = current->next;
-            } else {
-                table->buckets[index] = current->next;
-            }
-            free(current);
-            table->count--;
-            return;
-        }
-        prev = current;
-        current = current->next;
-    }
-}
+//     while (current) {
+//         if (current->key == key) {
+//             if (prev) {
+//                 prev->next = current->next;
+//             } else {
+//                 table->buckets[index] = current->next;
+//             }
+//             free(current);
+//             table->count--;
+//             return;
+//         }
+//         prev = current;
+//         current = current->next;
+//     }
+// }
 
 // 销毁哈希表（释放所有内存）
 void destroy_hash_table(HashTable* table) {
@@ -117,33 +111,4 @@ void destroy_hash_table(HashTable* table) {
     }
     free(table->buckets);
     free(table);
-}
-
-// 示例用法
-int main() {
-    // 创建哈希表（桶数量为10）
-    HashTable* table = create_hash_table(10);
-    if (!table) {
-        fprintf(stderr, "Failed to create hash table.\n");
-        return 1;
-    }
-
-    // 插入数据
-    SemanticInfo info1 = {1, "variable"};
-    SemanticInfo info2 = {2, "function"};
-    hash_table_insert(table, 1001, info1);
-    hash_table_insert(table, 2002, info2);
-
-    // 查找数据
-    SemanticInfo* result = hash_table_lookup(table, 1001);
-    if (result) {
-        printf("Found: type=%d, name=%s\n", result->type, result->name);
-    }
-
-    // 删除数据
-    hash_table_delete(table, 2002);
-
-    // 释放哈希表内存
-    destroy_hash_table(table);
-    return 0;
 }

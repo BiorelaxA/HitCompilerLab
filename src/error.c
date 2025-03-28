@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-24 09:40:32
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-24 14:45:56
+ * @LastEditTime: 2025-03-28 16:20:48
  * @FilePath: /Lab/src/error.c
  * @Description: error read file
  * 
@@ -30,4 +30,8 @@
     else{
         printf("\033[31mError A happens at line %d \033[0m\n",error->linenum);
     }
+ }
+
+ void reporterror(int linenum,int errortype,char* error){
+    printf("\033[31mError number %d happens at line %d ,the error is %s ;\033[0m\n",errortype,error_line,error);
  }

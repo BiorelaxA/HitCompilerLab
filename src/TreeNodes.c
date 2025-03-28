@@ -4,6 +4,8 @@
 #include "../include/TreeNode.h"
 #include "../syntax.tab.h"
 #include "../include/SemanticInfo.h"
+#include <stdarg.h>
+#include "../lab2.h"
 
 
 char GrammarSymbolNames[ARGS - PROGRAM + 1][20] = {
@@ -115,7 +117,7 @@ TreeNode_ptr create_node(int token, int linenum, int child_count, int issamantic
         }
         node->child_count = 0;
     }
-    node->SemanticInfo=create_semanticinfo(token,get_name(token,issamanticValue));
+    node->SemanticInfo=create_semanticinfo(node);
     return node;
 }
 // void add_children(TreeNode_ptr father,TreeNode_ptr child){
@@ -123,18 +125,25 @@ TreeNode_ptr create_node(int token, int linenum, int child_count, int issamantic
 //     father->child_count++;
 // }
 
-void add_children(TreeNode_ptr father, TreeNode_ptr child) {
-    if (father == NULL || child == NULL) {
-        fprintf(stderr, "Invalid argument in add_children\n");
-        return;
+void add_children(TreeNode_ptr father,int childnum,...) {
+    va_list args;
+    va_start(args,childnum);
+    for(int i=0;i<childnum,i++){
+        TreeNode_ptr child=va_arg(args,TreeNode_ptr);
+        if (father == NULL || child == NULL) {
+            fprintf(stderr, "Invalid argument in add_children\n");
+            return;
+        }
+        if (father->children == NULL) {
+            fprintf(stderr, "Children array not initialized in add_children\n");
+            return;
+        }
+        // printf("[add_child]:%d\n",child->token);
+        father->children[father->child_count] = child;
+        father->child_count++;
     }
-    if (father->children == NULL) {
-        fprintf(stderr, "Children array not initialized in add_children\n");
-        return;
-    }
-    // printf("[add_child]:%d\n",child->token);
-    father->children[father->child_count] = child;
-    father->child_count++;
+    SetHashTable(GLOBAL_HASH_TABLE,father);
+    va_end(args);
 }
 
 void set_root_node(TreeNode_ptr node){
