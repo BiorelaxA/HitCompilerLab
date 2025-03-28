@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-27 16:16:31
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-28 18:22:51
+ * @LastEditTime: 2025-03-28 20:51:48
  * @FilePath: /Lab/src/SemanticInfo.c
  * @Description: file to definit semantic information
  * 
@@ -49,12 +49,16 @@ SemanticInfo_ptr create_semanticinfo(TreeNode_ptr node){
     // return s;
 }
 
-void SetHashTable(HashNode_ptr hashtable,TreeNode_ptr node){
+void SetHashTable(HashTable_ptr hashtable,TreeNode_ptr node){
     
     
 }      
 
-void SetHashTable_Specifier(HashNode_ptr hashtable,TreeNode_ptr node){
+void SetHashTable_Program(HashTable_ptr hashtable,TreeNode_ptr node){
+
+}
+
+void SetHashTable_Specifier(HashTable_ptr hashtable,TreeNode_ptr node){
     if (node->child_count!=1)
     {
         return;
@@ -80,7 +84,7 @@ void SetHashTable_FunDec(HashTable_ptr hashtable,TreeNode_ptr node){
         node->SemanticInfo->isfunction=1;
         node->SemanticInfo->name=child1->ID;
         //如果是规约的话，作为e综合属性，Varlist应当已经拿到了
-        SemanticFunctionInfo_ptr f=
+        // SemanticFunctionInfo_ptr f=
         //todo 需要varlist的number
         return;
     }
@@ -108,6 +112,144 @@ void SetHashTable_FunDec(HashTable_ptr hashtable,TreeNode_ptr node){
         return;
     } 
 }
+void SetHashTable_Compstm(HashNode_ptr hashtable,TreeNode_ptr node){
+    if (match_with_var(node,4,LC,DEF_LIST,STMT_LIST,RC))
+    {
+        //这里应该不用做什么，因为规约进行，调用这个函数的时机应该是规约的时候调用，此时DEF_LIST,STMT_LIST应该已经定义好了
+        //这里也检查不出什么错误   
+    }
+    else{
+        return;
+    }
+}
+
+void SetHashTable_DefList(HashNode_ptr hashtable,TreeNode_ptr node){
+
+}
+void SetHashTable_VarDec(HashTable_ptr hashtable,TreeNode_ptr node){
+    if (node->child_count==1)
+    {
+        TreeNode_ptr child=node->children[0];
+        node->SemanticInfo->isID=1;
+        node->SemanticInfo->name=child->ID;
+    }
+    else if (node->child_count==4)
+    {
+        TreeNode_ptr child1=node->children[0];
+        TreeNode_ptr child2=node->children[2];
+        node->SemanticInfo=child1->SemanticInfo;
+        node->SemanticInfo->isArray=1;
+        SemanticArrayInfo_ptr p=malloc(sizeof(SemanticArrayInfo));
+        p->val_type=SVT_VOID;//其中的元素类型尚且未知
+        p->column_number=child2->intval;
+        p->row_number=1;
+        node->SemanticInfo->semanticarrayinfo=p;
+    }
+}
+
+void SetHashTable_Dec(HashTable_ptr hashtable,TreeNode_ptr node){
+    if (node->child_count==1)
+    {
+        TreeNode_ptr child=node->children[0];
+        node->SemanticInfo=child->SemanticInfo;
+    }
+    else if (node->child_count==2)
+    {
+        TreeNode_ptr child1=node->children[0];
+        TreeNode_ptr child2=node->children[2];
+        //由于是def产生式，所以这里似乎可以暂时不判断类型，将类型判断留给dDef来判断
+        if (child1->SemanticInfo->isArray==0)
+        {
+            //是一个尚未定义的数组
+            node->SemanticInfo=child1->SemanticInfo;
+            node->val_type=child2->val_type;
+        }
+        else{
+            printf("[SetHashTable_Dec]:should not enter this function");
+        }
+    }    
+}
+
+
+void SetHashTable_DecList(HashTable_ptr hashtable,TreeNode_ptr node){
+    if (match_with_var(node,1,DEC))
+    {
+        TreeNode_ptr child=node->children[0];
+        node->SemanticInfo=child->SemanticInfo;
+    }
+    else if (match_with_var(node,3,DEC.COMMA,DEC_LIST))
+    {
+        ///todo 多个Declist定义获取
+        
+    }
+}
+void SetHashTable_Def(HashTable_ptr hashtable,TreeNode_ptr node){
+    TreeNode_ptr child1=node->children[0];
+    TreeNode_ptr child2=node->children[1];
+    if (child1->val_type==child2->val_type)
+    {
+        node->SemanticInfo=child2->SemanticInfo;
+        hash_table_insert(hashtable,node->SemanticInfo);
+    }
+    else
+    {
+        reporterror(node->linenum,AssignmentTypeMismatch,"type with defination is miss type");
+    }
+}
+
+
+///stmt主要定义的是一些基本的语段结构，主要指除了定义语句外的其他语句，由于似乎没有涉及到错误类型可能发生，也没有改变什么语义属性
+//基本路线是继续向上传递语义，这里暂时不处理，因为类型判断用不上
+void SetHashTable_Stmt(HashNode_ptr hashtable,TreeNode_ptr node){
+
+}
+void SetHashTable_StmtList(HashNode_ptr hashtable,TreeNode_ptr node){
+    
+}
+void SetHashTable_Compstm(HashNode_ptr hashtable,TreeNode_ptr node){
+    
+}
+
+
+void SetHashTable_ExtDef(HashNode_ptr hashtable,TreeNode_ptr node){
+    if (match_with_var(node,3,SPECIFIER,EXT_DEC_LIST,SEMI))
+    {
+
+       
+    }
+    else if (match_with_var(node,2,SPECIFIER,SEMI))
+    {
+        TreeNode_ptr child1=node->children[0];
+        node->SemanticInfo=child1->SemanticInfo;
+        printf("\033[33m warning: there is only defination for type but not for varaible \033[0m \n");
+    }
+    else if (match_with_var(node,3,SPECIFIER,FUN_DEC,COMP_STM))
+    {
+        TreeNode_ptr child2=node->children[1];
+        TreeNode_ptr child1=node->children[0];
+        node->SemanticInfo=child2->SemanticInfo;
+        node->val_type=child1->val_type;
+        SemanticInfo_ptr a=(hashtable,node->SemanticInfo->name);
+        if (a!=NULL)
+        {
+            reporterror(node.linenum,FunctionRedefinition,"Redinition the function");
+        }
+        else{
+            hash_table_insert(hashtable,node->SemanticInfo);
+        }
+    }
+    // else if (match_with_var(node,3,SPECIFIER,FUN_DEC,SEMI))
+    // {
+        
+    // }
+}
+void SetHashTable_ExtDefList(HashNode_ptr hashtable,TreeNode_ptr node){
+    if (match_with_var(node,2,EXT_DEF,EXT_DEC_LIST))
+    {
+    }
+}
+
+
 
 void SetHashTable_Exp(HashTable_ptr hashtable,TreeNode_ptr node){
     if (node->child_count==1)

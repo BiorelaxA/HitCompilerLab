@@ -5,6 +5,7 @@
         "stdlib.h": "c",
         "stdio.h": "c",
         "hashtable.h": "c",
-        "lab2.h": "c"
+        "lab2.h": "c",
+        "typeinfo": "c"
     }
 }
