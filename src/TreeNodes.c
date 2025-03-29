@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/TreeNode.h"
-#include "../syntax.tab.h"
-#include "../include/SemanticInfo.h"
-#include <stdarg.h>
-#include "../lab2.h"
 
+#include "../include/CmmparserTypes.h"
+#include "../syntax.tab.h"
+// #include "../include/HashTable.h"
+// #include "../include/SemanticInfo.h"
+#include <stdarg.h>
+// #include "../lab2.h"
+// #include "../include/CmmparserTypes.h"
 
 char GrammarSymbolNames[ARGS - PROGRAM + 1][20] = {
     "Program",
@@ -68,7 +70,7 @@ char TokenNames[WHILE - INT + 1][20] = {
 extern char* yytext;
 TreeNode_ptr root=NULL;
 /// @brief 用于创建树中节点，token是文法符号的属性，由于basion为LALR统一采用综合属性 linum为节点所在位置
-TreeNode_ptr create_node(int token, int linenum, int child_count, int issamanticValue) {
+TreeNode_ptr create_node(int token, int linenum, int child_count, int issemanticValue) {
     TreeNode_ptr node = malloc(sizeof(TreeNode));
     if (node == NULL) {
         fprintf(stderr, "Memory allocation failed in create_node\n");
@@ -81,7 +83,7 @@ TreeNode_ptr create_node(int token, int linenum, int child_count, int issamantic
     node->floatval = 0.0f;
     node->children = NULL;
     node->child_count = 0;
-    node->issemanticValue = issamanticValue;
+    node->issemanticValue = issemanticValue;
 
     switch (token) {
         case ID:
@@ -117,7 +119,7 @@ TreeNode_ptr create_node(int token, int linenum, int child_count, int issamantic
         }
         node->child_count = 0;
     }
-    node->SemanticInfo=create_semanticinfo(node);
+    node->SemanticInfo=create_semanticinfo(node->issemanticValue,node->token);
     return node;
 }
 // void add_children(TreeNode_ptr father,TreeNode_ptr child){
@@ -128,7 +130,7 @@ TreeNode_ptr create_node(int token, int linenum, int child_count, int issamantic
 void add_children(TreeNode_ptr father,int childnum,...) {
     va_list args;
     va_start(args,childnum);
-    for(int i=0;i<childnum,i++){
+    for(int i=0;i<childnum;i++){
         TreeNode_ptr child=va_arg(args,TreeNode_ptr);
         if (father == NULL || child == NULL) {
             fprintf(stderr, "Invalid argument in add_children\n");

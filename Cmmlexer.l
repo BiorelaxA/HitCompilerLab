@@ -2,7 +2,10 @@
 #include "include/TreeNode.h"
 #include "syntax.tab.h"
 #include "include/error.h"
+
+
 int yycolumn=1;
+
 #define YY_USER_ACTION  \
     yylloc.first_line=yylloc.last_line=yylineno;  \
     yylloc.first_column=yycolumn;   \
@@ -105,8 +108,8 @@ ERROR .
 {SPACE} { yycolumn=1; }
 {ID} { yylval.node_ptr=create_node(ID,yylineno,0,1); return ID; }
 
-{ID_ERROR} { readError(create_node(ID_ERROR,yylineno,0,1)); }
-{FLOAT_ERROR} { readError(create_node(FLOAT_ERROR,yylineno,0,1)); }
-{ERROR} { readError(create_node(ERROR,yylineno,0,1)); has_error=1;}
+{ID_ERROR} { readError(create_node(ID_ERROR,yylineno,0,1)->linenum,1); }
+{FLOAT_ERROR} { readError(create_node(FLOAT_ERROR,yylineno,0,1)->linenum,1); }
+{ERROR} { readError(create_node(ERROR,yylineno,0,1)->linenum,1); has_error=1;}
 
 %%

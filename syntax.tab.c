@@ -69,13 +69,15 @@
 /* First part of user prologue.  */
 #line 1 "syntax.y"
 
-#include "lex.yy.c"
+//#include "lex.yy.c"
 //#include "include/TreeNode.h"
-#include "include/error.h"
+//#include "include/error.h"
+#include "include/CmmparserTypes.h"
+#include <stdio.h>
 extern int yylex();
 void yyerror(const char *s);
 
-#line 79 "syntax.tab.c"
+#line 81 "syntax.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -561,14 +563,14 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    74,    74,    78,    79,    83,    84,    85,    86,    87,
-      88,    89,    90,    94,    95,    96,   101,   102,   106,   107,
-     111,   112,   116,   121,   122,   123,   127,   128,   129,   133,
-     134,   138,   139,   144,   148,   149,   153,   154,   155,   156,
-     157,   158,   160,   166,   167,   171,   175,   176,   180,   181,
-     187,   188,   189,   190,   191,   192,   193,   194,   195,   196,
-     197,   198,   199,   200,   201,   202,   203,   204,   205,   206,
-     207,   208,   209,   211,   215,   216
+       0,    76,    76,    81,    82,    86,    87,    88,    89,    90,
+      91,    92,    93,    97,    98,    99,   104,   105,   109,   110,
+     114,   115,   119,   124,   125,   126,   130,   131,   132,   136,
+     137,   141,   142,   147,   151,   152,   156,   157,   158,   159,
+     160,   161,   163,   169,   170,   174,   178,   179,   183,   184,
+     190,   191,   192,   193,   194,   195,   196,   197,   198,   199,
+     200,   201,   202,   203,   204,   205,   206,   207,   208,   209,
+     210,   211,   212,   214,   218,   219
 };
 #endif
 
@@ -1365,451 +1367,451 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* Program: ExtDefList  */
-#line 74 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(PROGRAM,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));set_root_node((yyval.node_ptr));}
-#line 1371 "syntax.tab.c"
+#line 76 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(PROGRAM,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));set_root_node((yyval.node_ptr));}
+#line 1373 "syntax.tab.c"
     break;
 
   case 3: /* ExtDefList: ExtDef ExtDefList  */
-#line 78 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(EXT_DEF_LIST,(yyloc).first_line,2,0);add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1377 "syntax.tab.c"
+#line 81 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(EXT_DEF_LIST,(yyloc).first_line,2,0);add_children((yyval.node_ptr),2,(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1379 "syntax.tab.c"
     break;
 
   case 4: /* ExtDefList: %empty  */
-#line 79 "syntax.y"
+#line 82 "syntax.y"
                                               {(yyval.node_ptr)=create_node(EXT_DEF_LIST,(yyloc).first_line,0,0);}
-#line 1383 "syntax.tab.c"
+#line 1385 "syntax.tab.c"
     break;
 
   case 5: /* ExtDef: Specifier ExtDecList SEMI  */
-#line 83 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1389 "syntax.tab.c"
+#line 86 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1391 "syntax.tab.c"
     break;
 
   case 6: /* ExtDef: Specifier SEMI  */
-#line 84 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,2,0);add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1395 "syntax.tab.c"
+#line 87 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,2,0);add_children((yyval.node_ptr),2,(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1397 "syntax.tab.c"
     break;
 
   case 7: /* ExtDef: Specifier FunDec CompStm  */
-#line 85 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1401 "syntax.tab.c"
+#line 88 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1403 "syntax.tab.c"
     break;
 
   case 8: /* ExtDef: Specifier FunDec SEMI  */
-#line 86 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1407 "syntax.tab.c"
+#line 89 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1409 "syntax.tab.c"
     break;
 
   case 9: /* ExtDef: Specifier ExtDecList  */
-#line 87 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,2,0);add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1413 "syntax.tab.c"
+#line 90 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,2,0);add_children((yyval.node_ptr),2,(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1415 "syntax.tab.c"
     break;
 
   case 10: /* ExtDef: Specifier  */
-#line 88 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1419 "syntax.tab.c"
+#line 91 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1421 "syntax.tab.c"
     break;
 
   case 11: /* ExtDef: Specifier FunDec  */
-#line 89 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,2,0);add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1425 "syntax.tab.c"
+#line 92 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,2,0);add_children((yyval.node_ptr),2,(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1427 "syntax.tab.c"
     break;
 
   case 12: /* ExtDef: error SEMI  */
-#line 90 "syntax.y"
-                                              {yyerrok;(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,0,0);readError((yyval.node_ptr));has_error=1;}
-#line 1431 "syntax.tab.c"
+#line 93 "syntax.y"
+                                              {yyerrok;(yyval.node_ptr)=create_node(EXT_DEF,(yyloc).first_line,0,0);readError((yyval.node_ptr)->linenum,(yyval.node_ptr)->issemanticValue);has_error=1;}
+#line 1433 "syntax.tab.c"
     break;
 
   case 13: /* ExtDecList: VarDec  */
-#line 94 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(EXT_DEC_LIST,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1437 "syntax.tab.c"
+#line 97 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(EXT_DEC_LIST,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1439 "syntax.tab.c"
     break;
 
   case 14: /* ExtDecList: VarDec COMMA ExtDecList  */
-#line 95 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(EXT_DEC_LIST,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1443 "syntax.tab.c"
+#line 98 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(EXT_DEC_LIST,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1445 "syntax.tab.c"
     break;
 
   case 15: /* ExtDecList: VarDec ExtDecList  */
-#line 96 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(EXT_DEC_LIST,(yyloc).first_line,2,0);add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1449 "syntax.tab.c"
+#line 99 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(EXT_DEC_LIST,(yyloc).first_line,2,0);add_children((yyval.node_ptr),2,(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1451 "syntax.tab.c"
     break;
 
   case 16: /* Specifier: TYPE  */
-#line 101 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(SPECIFIER,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1455 "syntax.tab.c"
+#line 104 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(SPECIFIER,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1457 "syntax.tab.c"
     break;
 
   case 17: /* Specifier: StructSpecifier  */
-#line 102 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(SPECIFIER,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1461 "syntax.tab.c"
+#line 105 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(SPECIFIER,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1463 "syntax.tab.c"
     break;
 
   case 18: /* StructSpecifier: STRUCT OptTag LC DefList RC  */
-#line 106 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(STRUCT_SPECIFIER,(yyloc).first_line,5,0);add_children((yyval.node_ptr),(yyvsp[-4].node_ptr));add_children((yyval.node_ptr),(yyvsp[-3].node_ptr));add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1467 "syntax.tab.c"
+#line 109 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(STRUCT_SPECIFIER,(yyloc).first_line,5,0);add_children((yyval.node_ptr),5,(yyvsp[-4].node_ptr),(yyvsp[-3].node_ptr),(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1469 "syntax.tab.c"
     break;
 
   case 19: /* StructSpecifier: STRUCT Tag  */
-#line 107 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(STRUCT_SPECIFIER,(yyloc).first_line,2,0);add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1473 "syntax.tab.c"
+#line 110 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(STRUCT_SPECIFIER,(yyloc).first_line,2,0);add_children((yyval.node_ptr),2,(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1475 "syntax.tab.c"
     break;
 
   case 20: /* OptTag: ID  */
-#line 111 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(OPT_TAG,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1479 "syntax.tab.c"
+#line 114 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(OPT_TAG,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1481 "syntax.tab.c"
     break;
 
   case 21: /* OptTag: %empty  */
-#line 112 "syntax.y"
+#line 115 "syntax.y"
                                               {(yyval.node_ptr)=create_node(OPT_TAG,(yyloc).first_line,0,0);}
-#line 1485 "syntax.tab.c"
+#line 1487 "syntax.tab.c"
     break;
 
   case 22: /* Tag: ID  */
-#line 116 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(TAG,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1491 "syntax.tab.c"
+#line 119 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(TAG,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1493 "syntax.tab.c"
     break;
 
   case 23: /* VarDec: ID  */
-#line 121 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(VAR_DEC,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1497 "syntax.tab.c"
+#line 124 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(VAR_DEC,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1499 "syntax.tab.c"
     break;
 
   case 24: /* VarDec: VarDec LB INT RB  */
-#line 122 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(VAR_DEC,(yyloc).first_line,4,0);add_children((yyval.node_ptr),(yyvsp[-3].node_ptr));add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1503 "syntax.tab.c"
+#line 125 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(VAR_DEC,(yyloc).first_line,4,0);add_children((yyval.node_ptr),4,(yyvsp[-3].node_ptr),(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1505 "syntax.tab.c"
     break;
 
   case 25: /* VarDec: VarDec LB INT  */
-#line 123 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(VAR_DEC,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1509 "syntax.tab.c"
+#line 126 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(VAR_DEC,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1511 "syntax.tab.c"
     break;
 
   case 26: /* FunDec: ID LP VarList RP  */
-#line 127 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(FUN_DEC,(yyloc).first_line,4,0);add_children((yyval.node_ptr),(yyvsp[-3].node_ptr));add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1515 "syntax.tab.c"
+#line 130 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(FUN_DEC,(yyloc).first_line,4,0);add_children((yyval.node_ptr),4,(yyvsp[-3].node_ptr),(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1517 "syntax.tab.c"
     break;
 
   case 27: /* FunDec: ID LP RP  */
-#line 128 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(FUN_DEC,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1521 "syntax.tab.c"
+#line 131 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(FUN_DEC,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1523 "syntax.tab.c"
     break;
 
   case 28: /* FunDec: ID LP VarList  */
-#line 129 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(FUN_DEC,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1527 "syntax.tab.c"
+#line 132 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(FUN_DEC,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1529 "syntax.tab.c"
     break;
 
   case 29: /* VarList: ParamDec COMMA VarList  */
-#line 133 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(VAR_LIST,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1533 "syntax.tab.c"
+#line 136 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(VAR_LIST,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1535 "syntax.tab.c"
     break;
 
   case 30: /* VarList: ParamDec  */
-#line 134 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(VAR_LIST,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1539 "syntax.tab.c"
+#line 137 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(VAR_LIST,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1541 "syntax.tab.c"
     break;
 
   case 31: /* ParamDec: Specifier VarDec  */
-#line 138 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(PARAM_DEC,(yyloc).first_line,2,0);add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1545 "syntax.tab.c"
+#line 141 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(PARAM_DEC,(yyloc).first_line,2,0);add_children((yyval.node_ptr),2,(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1547 "syntax.tab.c"
     break;
 
   case 32: /* ParamDec: VarDec  */
-#line 139 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(PARAM_DEC,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1551 "syntax.tab.c"
+#line 142 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(PARAM_DEC,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1553 "syntax.tab.c"
     break;
 
   case 33: /* CompStm: LC DefList StmtList RC  */
-#line 144 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(COMP_STM,(yyloc).first_line,4,0);add_children((yyval.node_ptr),(yyvsp[-3].node_ptr));add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1557 "syntax.tab.c"
+#line 147 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(COMP_STM,(yyloc).first_line,4,0);add_children((yyval.node_ptr),4,(yyvsp[-3].node_ptr),(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1559 "syntax.tab.c"
     break;
 
   case 34: /* StmtList: Stmt StmtList  */
-#line 148 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(STMT_LIST,(yyloc).first_line,2,0);add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1563 "syntax.tab.c"
+#line 151 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(STMT_LIST,(yyloc).first_line,2,0);add_children((yyval.node_ptr),2,(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1565 "syntax.tab.c"
     break;
 
   case 35: /* StmtList: %empty  */
-#line 149 "syntax.y"
+#line 152 "syntax.y"
                                               {(yyval.node_ptr)=create_node(STMT_LIST,(yyloc).first_line,0,0);}
-#line 1569 "syntax.tab.c"
+#line 1571 "syntax.tab.c"
     break;
 
   case 36: /* Stmt: Exp SEMI  */
-#line 153 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(STMT,(yyloc).first_line,2,0);add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1575 "syntax.tab.c"
+#line 156 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(STMT,(yyloc).first_line,2,0);add_children((yyval.node_ptr),2,(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1577 "syntax.tab.c"
     break;
 
   case 37: /* Stmt: CompStm  */
-#line 154 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(STMT,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1581 "syntax.tab.c"
+#line 157 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(STMT,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1583 "syntax.tab.c"
     break;
 
   case 38: /* Stmt: RETURN Exp SEMI  */
-#line 155 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(STMT,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1587 "syntax.tab.c"
+#line 158 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(STMT,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1589 "syntax.tab.c"
     break;
 
   case 39: /* Stmt: IF LP Exp RP Stmt  */
-#line 156 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(STMT,(yyloc).first_line,5,0);add_children((yyval.node_ptr),(yyvsp[-4].node_ptr));add_children((yyval.node_ptr),(yyvsp[-3].node_ptr));add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1593 "syntax.tab.c"
+#line 159 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(STMT,(yyloc).first_line,5,0);add_children((yyval.node_ptr),5,(yyvsp[-4].node_ptr),(yyvsp[-3].node_ptr),(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1595 "syntax.tab.c"
     break;
 
   case 40: /* Stmt: IF LP Exp RP Stmt ELSE Stmt  */
-#line 157 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(STMT,(yyloc).first_line,7,0);add_children((yyval.node_ptr),(yyvsp[-6].node_ptr));add_children((yyval.node_ptr),(yyvsp[-5].node_ptr));add_children((yyval.node_ptr),(yyvsp[-4].node_ptr));add_children((yyval.node_ptr),(yyvsp[-3].node_ptr));add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1599 "syntax.tab.c"
+#line 160 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(STMT,(yyloc).first_line,7,0);add_children((yyval.node_ptr),7,(yyvsp[-6].node_ptr),(yyvsp[-5].node_ptr),(yyvsp[-4].node_ptr),(yyvsp[-3].node_ptr),(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1601 "syntax.tab.c"
     break;
 
   case 41: /* Stmt: WHILE LP Exp RP Stmt  */
-#line 158 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(STMT,(yyloc).first_line,5,0);add_children((yyval.node_ptr),(yyvsp[-4].node_ptr));add_children((yyval.node_ptr),(yyvsp[-3].node_ptr));add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1605 "syntax.tab.c"
+#line 161 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(STMT,(yyloc).first_line,5,0);add_children((yyval.node_ptr),5,(yyvsp[-4].node_ptr),(yyvsp[-3].node_ptr),(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1607 "syntax.tab.c"
     break;
 
   case 42: /* Stmt: error SEMI  */
-#line 160 "syntax.y"
-                                              {yyerrok;(yyval.node_ptr)=create_node(SEMI,(yyloc).first_line,0,0);readError((yyval.node_ptr));has_error=1;}
-#line 1611 "syntax.tab.c"
+#line 163 "syntax.y"
+                                              {yyerrok;(yyval.node_ptr)=create_node(SEMI,(yyloc).first_line,0,0);readError((yyval.node_ptr)->linenum,(yyval.node_ptr)->issemanticValue);has_error=1;}
+#line 1613 "syntax.tab.c"
     break;
 
   case 43: /* DefList: Def DefList  */
-#line 166 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(DEF_LIST,(yyloc).first_line,2,0);add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1617 "syntax.tab.c"
+#line 169 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(DEF_LIST,(yyloc).first_line,2,0);add_children((yyval.node_ptr),2,(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1619 "syntax.tab.c"
     break;
 
   case 44: /* DefList: %empty  */
-#line 167 "syntax.y"
+#line 170 "syntax.y"
                                               {(yyval.node_ptr)=create_node(DEF_LIST,(yyloc).first_line,0,0);}
-#line 1623 "syntax.tab.c"
+#line 1625 "syntax.tab.c"
     break;
 
   case 45: /* Def: Specifier DecList SEMI  */
-#line 171 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(DEF,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1629 "syntax.tab.c"
+#line 174 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(DEF,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1631 "syntax.tab.c"
     break;
 
   case 46: /* DecList: Dec  */
-#line 175 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(DEC_LIST,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1635 "syntax.tab.c"
+#line 178 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(DEC_LIST,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1637 "syntax.tab.c"
     break;
 
   case 47: /* DecList: Dec COMMA DecList  */
-#line 176 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(DEC_LIST,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1641 "syntax.tab.c"
+#line 179 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(DEC_LIST,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1643 "syntax.tab.c"
     break;
 
   case 48: /* Dec: VarDec  */
-#line 180 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(DEC,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1647 "syntax.tab.c"
+#line 183 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(DEC,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1649 "syntax.tab.c"
     break;
 
   case 49: /* Dec: VarDec ASSIGNOP Exp  */
-#line 181 "syntax.y"
-                                              {(yyval.node_ptr)=create_node(DEC,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1653 "syntax.tab.c"
+#line 184 "syntax.y"
+                                              {(yyval.node_ptr)=create_node(DEC,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1655 "syntax.tab.c"
     break;
 
   case 50: /* Exp: Exp ASSIGNOP Exp  */
-#line 187 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1659 "syntax.tab.c"
+#line 190 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1661 "syntax.tab.c"
     break;
 
   case 51: /* Exp: Exp AND Exp  */
-#line 188 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1665 "syntax.tab.c"
+#line 191 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1667 "syntax.tab.c"
     break;
 
   case 52: /* Exp: Exp OR Exp  */
-#line 189 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1671 "syntax.tab.c"
+#line 192 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1673 "syntax.tab.c"
     break;
 
   case 53: /* Exp: Exp EQ Exp  */
-#line 190 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1677 "syntax.tab.c"
+#line 193 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1679 "syntax.tab.c"
     break;
 
   case 54: /* Exp: Exp NEQ Exp  */
-#line 191 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1683 "syntax.tab.c"
+#line 194 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1685 "syntax.tab.c"
     break;
 
   case 55: /* Exp: Exp LT Exp  */
-#line 192 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1689 "syntax.tab.c"
+#line 195 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1691 "syntax.tab.c"
     break;
 
   case 56: /* Exp: Exp LE Exp  */
-#line 193 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1695 "syntax.tab.c"
+#line 196 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1697 "syntax.tab.c"
     break;
 
   case 57: /* Exp: Exp GT Exp  */
-#line 194 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1701 "syntax.tab.c"
+#line 197 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1703 "syntax.tab.c"
     break;
 
   case 58: /* Exp: Exp GE Exp  */
-#line 195 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1707 "syntax.tab.c"
+#line 198 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1709 "syntax.tab.c"
     break;
 
   case 59: /* Exp: Exp PLUS Exp  */
-#line 196 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1713 "syntax.tab.c"
+#line 199 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1715 "syntax.tab.c"
     break;
 
   case 60: /* Exp: Exp MINUS Exp  */
-#line 197 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1719 "syntax.tab.c"
+#line 200 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1721 "syntax.tab.c"
     break;
 
   case 61: /* Exp: Exp STAR Exp  */
-#line 198 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1725 "syntax.tab.c"
+#line 201 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1727 "syntax.tab.c"
     break;
 
   case 62: /* Exp: Exp DIV Exp  */
-#line 199 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1731 "syntax.tab.c"
+#line 202 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1733 "syntax.tab.c"
     break;
 
   case 63: /* Exp: LP Exp RP  */
-#line 200 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1737 "syntax.tab.c"
+#line 203 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1739 "syntax.tab.c"
     break;
 
   case 64: /* Exp: MINUS Exp  */
-#line 201 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,2,0);add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1743 "syntax.tab.c"
+#line 204 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,2,0);add_children((yyval.node_ptr),2,(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1745 "syntax.tab.c"
     break;
 
   case 65: /* Exp: NOT Exp  */
-#line 202 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,2,0);add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1749 "syntax.tab.c"
+#line 205 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,2,0);add_children((yyval.node_ptr),2,(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1751 "syntax.tab.c"
     break;
 
   case 66: /* Exp: ID LP Args RP  */
-#line 203 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,4,0);add_children((yyval.node_ptr),(yyvsp[-3].node_ptr));add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1755 "syntax.tab.c"
+#line 206 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,4,0);add_children((yyval.node_ptr),4,(yyvsp[-3].node_ptr),(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1757 "syntax.tab.c"
     break;
 
   case 67: /* Exp: ID LP RP  */
-#line 204 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1761 "syntax.tab.c"
+#line 207 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1763 "syntax.tab.c"
     break;
 
   case 68: /* Exp: Exp LB Exp RB  */
-#line 205 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,4,0);add_children((yyval.node_ptr),(yyvsp[-3].node_ptr));add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1767 "syntax.tab.c"
+#line 208 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,4,0);add_children((yyval.node_ptr),4,(yyvsp[-3].node_ptr),(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1769 "syntax.tab.c"
     break;
 
   case 69: /* Exp: Exp DOT ID  */
-#line 206 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1773 "syntax.tab.c"
+#line 209 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1775 "syntax.tab.c"
     break;
 
   case 70: /* Exp: ID  */
-#line 207 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1779 "syntax.tab.c"
+#line 210 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1781 "syntax.tab.c"
     break;
 
   case 71: /* Exp: INT  */
-#line 208 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1785 "syntax.tab.c"
+#line 211 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1787 "syntax.tab.c"
     break;
 
   case 72: /* Exp: FLOAT  */
-#line 209 "syntax.y"
-                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1791 "syntax.tab.c"
+#line 212 "syntax.y"
+                                               {(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1793 "syntax.tab.c"
     break;
 
   case 73: /* Exp: error Exp  */
-#line 211 "syntax.y"
-                                               {yyerrok;(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,0,0);readError((yyval.node_ptr));has_error=1;}
-#line 1797 "syntax.tab.c"
+#line 214 "syntax.y"
+                                               {yyerrok;(yyval.node_ptr)=create_node(EXP,(yyloc).first_line,0,0);readError((yyval.node_ptr)->linenum,(yyval.node_ptr)->issemanticValue);has_error=1;}
+#line 1799 "syntax.tab.c"
     break;
 
   case 74: /* Args: Exp COMMA Args  */
-#line 215 "syntax.y"
-                                            {(yyval.node_ptr)=create_node(ARGS,(yyloc).first_line,3,0);add_children((yyval.node_ptr),(yyvsp[-2].node_ptr));add_children((yyval.node_ptr),(yyvsp[-1].node_ptr));add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1803 "syntax.tab.c"
+#line 218 "syntax.y"
+                                            {(yyval.node_ptr)=create_node(ARGS,(yyloc).first_line,3,0);add_children((yyval.node_ptr),3,(yyvsp[-2].node_ptr),(yyvsp[-1].node_ptr),(yyvsp[0].node_ptr));}
+#line 1805 "syntax.tab.c"
     break;
 
   case 75: /* Args: Exp  */
-#line 216 "syntax.y"
-                                            {(yyval.node_ptr)=create_node(ARGS,(yyloc).first_line,1,0);add_children((yyval.node_ptr),(yyvsp[0].node_ptr));}
-#line 1809 "syntax.tab.c"
+#line 219 "syntax.y"
+                                            {(yyval.node_ptr)=create_node(ARGS,(yyloc).first_line,1,0);add_children((yyval.node_ptr),1,(yyvsp[0].node_ptr));}
+#line 1811 "syntax.tab.c"
     break;
 
 
-#line 1813 "syntax.tab.c"
+#line 1815 "syntax.tab.c"
 
       default: break;
     }
@@ -2007,7 +2009,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 219 "syntax.y"
+#line 222 "syntax.y"
 
 void yyerror(const char *s) {
     fprintf(stderr," ");

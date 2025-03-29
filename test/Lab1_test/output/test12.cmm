@@ -16,21 +16,26 @@ Program (1)
                         DecList (3)
                             Dec (3)
                                 VarDec (3)
-                                    ID: i
-                                ASSIGNOP
-                                Exp (3)
-                                    INT: 0
+                                    VarDec (3)
+                                        ID: i
+                                    LB
+                                    INT: 10
+                                    RB
                         SEMI
                     DefList (3)
                 StmtList (4)
                     Stmt (4)
                         Exp (4)
-                            ID: inc
-                            LP
-                            Args (4)
+                            Exp (4)
                                 Exp (4)
                                     ID: i
-                            RP
+                                LB
+                                Exp (4)
+                                    FLOAT: 1.500000
+                                RB
+                            ASSIGNOP
+                            Exp (4)
+                                INT: 10
                         SEMI
                     StmtList (4)
                 RC

@@ -12,25 +12,21 @@ Program (1)
                 DefList (3)
                     Def (3)
                         Specifier (3)
-                            TYPE: int
+                            TYPE: float
                         DecList (3)
                             Dec (3)
                                 VarDec (3)
-                                    ID: i
-                                ASSIGNOP
-                                Exp (3)
-                                    INT: 0
+                                    ID: j
                         SEMI
                     DefList (3)
                 StmtList (4)
                     Stmt (4)
                         Exp (4)
-                            ID: inc
-                            LP
-                            Args (4)
-                                Exp (4)
-                                    ID: i
-                            RP
+                            Exp (4)
+                                INT: 10
+                            PLUS
+                            Exp (4)
+                                ID: j
                         SEMI
                     StmtList (4)
                 RC

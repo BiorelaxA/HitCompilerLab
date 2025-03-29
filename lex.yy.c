@@ -549,14 +549,17 @@ char *yytext;
 #include "include/TreeNode.h"
 #include "syntax.tab.h"
 #include "include/error.h"
+
+
 int yycolumn=1;
+
 #define YY_USER_ACTION  \
     yylloc.first_line=yylloc.last_line=yylineno;  \
     yylloc.first_column=yycolumn;   \
     yylloc.last_column=yycolumn+yyleng-1;   \
     yycolumn+=yyleng;
-#line 559 "lex.yy.c"
-#line 560 "lex.yy.c"
+#line 562 "lex.yy.c"
+#line 563 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -773,9 +776,9 @@ YY_DECL
 		}
 
 	{
-#line 67 "Cmmlexer.l"
+#line 70 "Cmmlexer.l"
 
-#line 779 "lex.yy.c"
+#line 782 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -844,201 +847,201 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 68 "Cmmlexer.l"
+#line 71 "Cmmlexer.l"
 { while (input() != '\n'); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 69 "Cmmlexer.l"
+#line 72 "Cmmlexer.l"
 {}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 71 "Cmmlexer.l"
+#line 74 "Cmmlexer.l"
 { yylval.node_ptr=create_node(INT,yylineno,0,1);return INT;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 72 "Cmmlexer.l"
+#line 75 "Cmmlexer.l"
 { yylval.node_ptr=create_node(FLOAT,yylineno,0,1); return FLOAT;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 73 "Cmmlexer.l"
+#line 76 "Cmmlexer.l"
 {yylval.node_ptr=create_node(SEMI,yylineno,0,1); return SEMI;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 74 "Cmmlexer.l"
+#line 77 "Cmmlexer.l"
 { yylval.node_ptr=create_node(COMMA,yylineno,0,1); return COMMA; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 75 "Cmmlexer.l"
+#line 78 "Cmmlexer.l"
 {yylval.node_ptr=create_node(ASSIGNOP,yylineno,0,1); return ASSIGNOP; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 76 "Cmmlexer.l"
+#line 79 "Cmmlexer.l"
 {yylval.node_ptr=create_node(PLUS,yylineno,0,1); return PLUS;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 77 "Cmmlexer.l"
+#line 80 "Cmmlexer.l"
 {yylval.node_ptr=create_node(MINUS,yylineno,0,1); return MINUS;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 78 "Cmmlexer.l"
+#line 81 "Cmmlexer.l"
 { yylval.node_ptr=create_node(STAR,yylineno,0,1); return STAR; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 79 "Cmmlexer.l"
+#line 82 "Cmmlexer.l"
 { yylval.node_ptr=create_node(DIV,yylineno,0,1); return DIV; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 80 "Cmmlexer.l"
+#line 83 "Cmmlexer.l"
 { yylval.node_ptr=create_node(AND,yylineno,0,1);return AND; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 81 "Cmmlexer.l"
+#line 84 "Cmmlexer.l"
 { yylval.node_ptr=create_node(OR,yylineno,0,1); return OR; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 82 "Cmmlexer.l"
+#line 85 "Cmmlexer.l"
 {yylval.node_ptr=create_node(DOT,yylineno,0,1); return DOT;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 83 "Cmmlexer.l"
+#line 86 "Cmmlexer.l"
 { yylval.node_ptr=create_node(NOT,yylineno,0,1); return NOT; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 84 "Cmmlexer.l"
+#line 87 "Cmmlexer.l"
 {yylval.node_ptr=create_node(TYPE,yylineno,0,1); return TYPE;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 86 "Cmmlexer.l"
+#line 89 "Cmmlexer.l"
 {  yylval.node_ptr=create_node(EQ,yylineno,0,1); return EQ;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 87 "Cmmlexer.l"
+#line 90 "Cmmlexer.l"
 { yylval.node_ptr=create_node(NEQ,yylineno,0,1); return NEQ; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 88 "Cmmlexer.l"
+#line 91 "Cmmlexer.l"
 {yylval.node_ptr=create_node(LE,yylineno,0,1); return LE;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 89 "Cmmlexer.l"
+#line 92 "Cmmlexer.l"
 {  yylval.node_ptr=create_node(LT,yylineno,0,1); return LT;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 90 "Cmmlexer.l"
+#line 93 "Cmmlexer.l"
 {yylval.node_ptr=create_node(GE,yylineno,0,1); return GE;  }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 91 "Cmmlexer.l"
+#line 94 "Cmmlexer.l"
 { yylval.node_ptr=create_node(GT,yylineno,0,1); return GT;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 93 "Cmmlexer.l"
+#line 96 "Cmmlexer.l"
 { yylval.node_ptr=create_node(LP,yylineno,0,1); return LP; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 94 "Cmmlexer.l"
+#line 97 "Cmmlexer.l"
 { yylval.node_ptr=create_node(RP,yylineno,0,1); return RP; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 95 "Cmmlexer.l"
+#line 98 "Cmmlexer.l"
 {yylval.node_ptr=create_node(LB,yylineno,0,1); return LB;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 96 "Cmmlexer.l"
+#line 99 "Cmmlexer.l"
 {yylval.node_ptr=create_node(RB,yylineno,0,1); return RB; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 97 "Cmmlexer.l"
+#line 100 "Cmmlexer.l"
 { yylval.node_ptr=create_node(LC,yylineno,0,1); return LC; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 98 "Cmmlexer.l"
+#line 101 "Cmmlexer.l"
 { yylval.node_ptr=create_node(RC,yylineno,0,1); return RC;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 100 "Cmmlexer.l"
+#line 103 "Cmmlexer.l"
 { yylval.node_ptr=create_node(STRUCT,yylineno,0,1); return STRUCT; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 101 "Cmmlexer.l"
+#line 104 "Cmmlexer.l"
 { yylval.node_ptr=create_node(RETURN,yylineno,0,1); return RETURN;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 102 "Cmmlexer.l"
+#line 105 "Cmmlexer.l"
 { yylval.node_ptr=create_node(IF,yylineno,0,1); return IF; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 103 "Cmmlexer.l"
+#line 106 "Cmmlexer.l"
 {  yylval.node_ptr=create_node(ELSE,yylineno,0,1); return ELSE;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 104 "Cmmlexer.l"
+#line 107 "Cmmlexer.l"
 {yylval.node_ptr=create_node(WHILE,yylineno,0,1); return WHILE;}
 	YY_BREAK
 case 34:
 /* rule 34 can match eol */
 YY_RULE_SETUP
-#line 105 "Cmmlexer.l"
+#line 108 "Cmmlexer.l"
 { yycolumn=1; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 106 "Cmmlexer.l"
+#line 109 "Cmmlexer.l"
 { yylval.node_ptr=create_node(ID,yylineno,0,1); return ID; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 108 "Cmmlexer.l"
-{ readError(create_node(ID_ERROR,yylineno,0,1)); }
+#line 111 "Cmmlexer.l"
+{ readError(create_node(ID_ERROR,yylineno,0,1)->linenum,1); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 109 "Cmmlexer.l"
-{ readError(create_node(FLOAT_ERROR,yylineno,0,1)); }
+#line 112 "Cmmlexer.l"
+{ readError(create_node(FLOAT_ERROR,yylineno,0,1)->linenum,1); }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 110 "Cmmlexer.l"
-{ readError(create_node(ERROR,yylineno,0,1)); has_error=1;}
+#line 113 "Cmmlexer.l"
+{ readError(create_node(ERROR,yylineno,0,1)->linenum,1); has_error=1;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 112 "Cmmlexer.l"
+#line 115 "Cmmlexer.l"
 ECHO;
 	YY_BREAK
-#line 1042 "lex.yy.c"
+#line 1045 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2055,5 +2058,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 112 "Cmmlexer.l"
+#line 115 "Cmmlexer.l"
 

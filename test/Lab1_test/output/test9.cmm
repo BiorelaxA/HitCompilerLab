@@ -29,7 +29,7 @@ Program (1)
                 Specifier (6)
                     TYPE: int
                 FunDec (6)
-                    ID: func
+                    ID: main
                     LP
                     RP
                 CompSt (7)
@@ -37,23 +37,18 @@ Program (1)
                     DefList (7)
                     StmtList (8)
                         Stmt (8)
-                            RETURN
                             Exp (8)
-                                INT: 0
+                                ID: func
+                                LP
+                                Args (8)
+                                    Exp (8)
+                                        INT: 1
+                                    COMMA
+                                    Args (8)
+                                        Exp (8)
+                                            INT: 2
+                                RP
                             SEMI
                         StmtList (8)
                     RC
-            ExtDefList (11)
-                ExtDef (11)
-                    Specifier (11)
-                        TYPE: int
-                    FunDec (11)
-                        ID: main
-                        LP
-                        RP
-                    CompSt (12)
-                        LC
-                        DefList (12)
-                        StmtList (12)
-                        RC
-                ExtDefList (13)
+            ExtDefList (9)
