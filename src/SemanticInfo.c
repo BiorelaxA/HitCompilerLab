@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-27 16:16:31
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-30 00:00:42
+ * @LastEditTime: 2025-03-30 00:45:52
  * @FilePath: /Lab/src/SemanticInfo.c
  * @Description: file to definit semantic information
  * 
@@ -34,7 +34,9 @@ void SetHashTable_Exp(HashTable_ptr hashtable,TreeNode_ptr node);
 void SetHashTable_ParamDec(HashTable_ptr hashtable,TreeNode_ptr node);
 void SetHashTable_VarList(HashTable_ptr hashtable,TreeNode_ptr node);
 void SetHashTable_Args(HashTable_ptr hashtable,TreeNode_ptr node);
-
+void SetHashTable_StructSpecifier(HashTable_ptr hashtable,TreeNode_ptr node);
+void SetHashTable_Tag(HashTable_ptr hashtable,TreeNode_ptr node);
+void SetHashTable_OptTag(HashTable_ptr hashtable,TreeNode_ptr node);
 
 /// @brief 为每个节点创建一个语义属性
 /// @param type_id 文法符号id，用于后续在hashtable中映射
@@ -76,6 +78,7 @@ void SetHashTable(HashTable_ptr hashtable,TreeNode_ptr node){
         SetHashTable_Specifier(hashtable,node);
         break;
     case STRUCT_SPECIFIER:
+        
         break;
     case OPT_TAG:
         break;
@@ -157,6 +160,57 @@ void SetHashTable_Specifier(HashTable_ptr hashtable,TreeNode_ptr node){
         node->SemanticInfo->val_type=SVT_STRUCT;
     }
 }
+void SetHashTable_StructSpecifier(HashTable_ptr hashtable,TreeNode_ptr node){
+    if (node->child_count==5)
+    {
+        if (match_with_var(node,5,STRUCT,OPT_TAG,LC,DEF_LIST,RC)==1)
+        {
+            
+        }
+        
+    }
+    else if (node->child_count==2)
+    {
+        if (match_with_var(node,2,STRUCT,TAG)==1)
+        {
+            SemanticInfo_ptr p=malloc(sizeof(SemanticInfo));
+            TreeNode_ptr node=node->children[1];
+            p=node->SemanticInfo;
+            p->isstruct=1;
+            p->semanticarrayinfo=NULL;
+            hash_table_insert(hashtable,p);
+            node->SemanticInfo=p;
+        }
+    }
+    
+    
+
+}
+void SetHashTable_Tag(HashTable_ptr hashtable,TreeNode_ptr node){
+    SemanticInfo_ptr p=malloc(sizeof(SemanticInfo));
+    p->isID=1;
+    TreeNode_ptr child=node->children[0];
+    p->name=child->ID;
+    node->SemanticInfo=p;
+}
+void SetHashTable_OptTag(HashTable_ptr hashtable,TreeNode_ptr node){
+    if (node->child_count==1)
+    {
+        SemanticInfo_ptr p=malloc(sizeof(SemanticInfo));
+        p->isID=1;
+        TreeNode_ptr child=node->children[0];
+        p->name=child->ID;
+        node->SemanticInfo=p;
+    }
+    else
+    {
+        //nothing here we initilize them with null
+    }
+    
+    
+}
+
+
 
 void SetHashTable_FunDec(HashTable_ptr hashtable,TreeNode_ptr node){
     if (node->child_count==4)
@@ -302,7 +356,7 @@ void SetHashTable_Compstm(HashTable_ptr hashtable,TreeNode_ptr node){
 }
 
 void SetHashTable_DefList(HashTable_ptr hashtable,TreeNode_ptr node){
-
+    
 }
 void SetHashTable_VarDec(HashTable_ptr hashtable,TreeNode_ptr node){
     if (node->child_count==1)
@@ -781,9 +835,13 @@ void SetHashTable_Exp(HashTable_ptr hashtable,TreeNode_ptr node){
         {
             SemanticInfo_ptr func=hash_table_lookup(hashtable,child1->ID);
             
-            if (!func||(func->isfunction==0))
+            if (!func||((func->isfunction==0)&&(func->isID==0)))
             {
                 reporterror(node->linenum,UndefinedFunctionCalled,"can not use undefined function");
+            }
+            else if (func->isID==1)
+            {
+                reporterror(node->linenum,FunctionCalledOnNonFunction,"can not application a function type on a varible type");
             }
             else
             {
@@ -812,7 +870,13 @@ void SetHashTable_Exp(HashTable_ptr hashtable,TreeNode_ptr node){
         }
         else if (match_with_var(node,4,EXP,LB,EXP,RB))
         {
-            ///意味着这必然是一个g使用的函数
+            ///意味着这必然是一个数组访问
+            // TreeNode_ptr child1
+            SemanticInfo_ptr p=hash_table_lookup(hashtable,child1->SemanticInfo->name);
+            if (p->isArray==0)
+            {
+                reporterror(node->linenum,ArrayAccessOnNonArray,"can not application array on a none array type varible");
+            }
         }
     }
     return;
