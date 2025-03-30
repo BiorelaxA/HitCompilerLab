@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-29 00:17:18
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-29 23:14:26
+ * @LastEditTime: 2025-03-30 11:08:25
  * @FilePath: /Lab/include/CmmparserTypes.h
  * @Description: CmmparserTypes.h
  * 
@@ -116,13 +116,20 @@ struct SemanticFunctionInfo
 typedef struct SemanticFunctionInfo SemanticFunctionInfo;
 typedef struct SemanticFunctionInfo* SemanticFunctionInfo_ptr;
 
-struct SemanticStructInfo{
-    int val_number;
-    int* val_type;
-    char** val_name;
-};
-typedef struct SemanticStructInfo SemanticStructInfo;
-typedef struct SemanticStructInfo* SemanticStructInfo_ptr;
+// 每个类型对应的变量信息
+typedef struct {
+    int type;           // 类型标识符 (可以用枚举或实际类型码表示)
+    int var_count;      // 该类型对应的变量数量
+    char** var_names;   // 该类型对应的变量名数组 (char* 数组)
+} TypeEntry;
+typedef TypeEntry* TypeEntry_ptr;
+// 语义分析结构体信息
+typedef struct SemanticmuldefInfo {
+    int type_count;     // 类型条目数量 (如示例中的2种类型)
+    TypeEntry** entries; // 类型条目数组 (每个元素存储一种类型的信息)
+} SemanticmuldefInfo;
+
+typedef SemanticmuldefInfo* SemanticmuldefInfo_ptr;
 
 struct SemanticArrayInfo{
     int val_type;
@@ -132,14 +139,16 @@ struct SemanticArrayInfo{
 typedef struct SemanticArrayInfo SemanticArrayInfo;
 typedef struct SemanticArrayInfo* SemanticArrayInfo_ptr;
 
-struct SemanticIDDefInfo{
-    /// @brief 需要定义的个数
-    int number;
-    /// @brief 每个定义的name字面量
-    char** val_name;
-};
-typedef struct SemanticIDDefInfo SemanticIDDefInfo;
-typedef struct SemanticIDDefInfo* SemanticIDDefInfo_ptr;
+// struct SemanticIDDefInfo{
+//     /// @brief 每个类型定义的变量个数
+//     int number;
+//     // /// @brief 每个定义的种类
+//     // int* val_type;
+//     /// @brief 每个定义的name字面量
+//     char** val_name;
+// };
+// typedef struct SemanticIDDefInfo SemanticIDDefInfo;
+// typedef struct SemanticIDDefInfo* SemanticIDDefInfo_ptr;
 
 struct SemanticInfo
 {
@@ -154,14 +163,15 @@ struct SemanticInfo
     int isdefined;//判断是否定义了
     int val_type;
     int isfunction;
+    /// @brief 用于控制下面的muldef是单独只是多个定义还是属于结构体的多个定义
     int isstruct;
     int isArray;
     int isID;
     /// @brief 用于控制下面是否有多个定义的，例如：int a,b,c;这类用于控制SemanticIDDefInfo是否有效
     int ismulidef;
-    SemanticIDDefInfo_ptr semanticiddefinfo;
+    // SemanticIDDefInfo_ptr semanticiddefinfo;
     SemanticFunctionInfo_ptr semanticFunctioninfo;
-    SemanticStructInfo_ptr semanticstructinfo;
+    SemanticmuldefInfo_ptr semanticmuldefinfo;
     SemanticArrayInfo_ptr semanticarrayinfo;
 };
 typedef struct SemanticInfo SemanticInfo;

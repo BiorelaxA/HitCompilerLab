@@ -8,4 +8,4 @@ here is the HitCompilerLab for 2025 Spring
 make lab1
 ```
 
-## 暂时只有lab1的结果
+## 暂时只有lab1,lab2的结果

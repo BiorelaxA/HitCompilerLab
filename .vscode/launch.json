@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/lab2",  // 可执行文件路径
-            "args": ["${workspaceFolder}/test/Lab2_test/test9.cmm","-g"],            // 调试时传入的参数（如测试文件）
+            "args": ["${workspaceFolder}/test/Lab2_test/test12.cmm","-g"],            // 调试时传入的参数（如测试文件）
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

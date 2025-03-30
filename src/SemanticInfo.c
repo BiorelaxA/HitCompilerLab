@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-27 16:16:31
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-30 00:45:52
+ * @LastEditTime: 2025-03-30 15:07:59
  * @FilePath: /Lab/src/SemanticInfo.c
  * @Description: file to definit semantic information
  * 
@@ -16,6 +16,7 @@
 #include <string.h>
 int check_on_logic_caculate(HashTable_ptr hashtable,TreeNode_ptr father,TreeNode_ptr node1,TreeNode_ptr node2);
 int match_with_var(TreeNode_ptr node,int child_num,...);
+TypeEntry_ptr find_type_entry(SemanticmuldefInfo_ptr s, int target_type);
 void SetHashTable_Program(HashTable_ptr hashtable,TreeNode_ptr node);
 void SetHashTable_Specifier(HashTable_ptr hashtable,TreeNode_ptr node);
 void SetHashTable_ExtDefList(HashTable_ptr hashtable,TreeNode_ptr node);
@@ -29,7 +30,7 @@ void SetHashTable_Def(HashTable_ptr hashtable,TreeNode_ptr node);
 void SetHashTable_Stmt(HashTable_ptr hashtable,TreeNode_ptr node);
 void SetHashTable_StmtList(HashTable_ptr hashtable,TreeNode_ptr node);
 void SetHashTable_ExtDef(HashTable_ptr hashtable,TreeNode_ptr node);
-void SetHashTable_ExtDefList(HashTable_ptr hashtable,TreeNode_ptr node);
+void SetHashTable_ExtDecList(HashTable_ptr hashtable,TreeNode_ptr node);
 void SetHashTable_Exp(HashTable_ptr hashtable,TreeNode_ptr node);
 void SetHashTable_ParamDec(HashTable_ptr hashtable,TreeNode_ptr node);
 void SetHashTable_VarList(HashTable_ptr hashtable,TreeNode_ptr node);
@@ -53,11 +54,11 @@ SemanticInfo_ptr create_semanticinfo(int issemanticValue,int token){
     s->val_type=SVT_VOID;
     s->semanticarrayinfo=NULL;
     s->semanticFunctioninfo=NULL;
-    s->semanticstructinfo=NULL;
+    s->semanticmuldefinfo=NULL;
     s->isdefined=0;
     s->isID=0;
     s->ismulidef=0;
-    s->semanticiddefinfo=NULL;
+    // s->semanticiddefinfo=NULL;
 }
 
 void SetHashTable(HashTable_ptr hashtable,TreeNode_ptr node){
@@ -73,16 +74,19 @@ void SetHashTable(HashTable_ptr hashtable,TreeNode_ptr node){
         SetHashTable_ExtDef(hashtable,node);
         break;
     case EXT_DEC_LIST:
+        SetHashTable_ExtDecList(hashtable,node);
         break;
     case SPECIFIER:
         SetHashTable_Specifier(hashtable,node);
         break;
     case STRUCT_SPECIFIER:
-        
+        SetHashTable_StructSpecifier( hashtable, node);
         break;
     case OPT_TAG:
+        SetHashTable_OptTag(hashtable,node);
         break;
     case TAG:
+        SetHashTable_Tag(hashtable,node);
         break;
     case VAR_DEC:
         SetHashTable_VarDec(hashtable,node);
@@ -157,7 +161,7 @@ void SetHashTable_Specifier(HashTable_ptr hashtable,TreeNode_ptr node){
     }
     else if (node->children[0]->token==STRUCT_SPECIFIER)
     {
-        node->SemanticInfo->val_type=SVT_STRUCT;
+        node->SemanticInfo=child->SemanticInfo;
     }
 }
 void SetHashTable_StructSpecifier(HashTable_ptr hashtable,TreeNode_ptr node){
@@ -165,7 +169,22 @@ void SetHashTable_StructSpecifier(HashTable_ptr hashtable,TreeNode_ptr node){
     {
         if (match_with_var(node,5,STRUCT,OPT_TAG,LC,DEF_LIST,RC)==1)
         {
-            
+            //结构体定义
+            TreeNode_ptr child1=node->children[1];
+            TreeNode_ptr child2=node->children[3];
+            node->SemanticInfo=child2->SemanticInfo;
+            node->SemanticInfo->isstruct=1;
+            node->SemanticInfo->name=child1->SemanticInfo->name;
+            node->SemanticInfo->val_type=SVT_STRUCT;
+            SemanticInfo_ptr p=hash_table_lookup(hashtable,child1->SemanticInfo->name);
+            if (!p)
+            {
+                hash_table_insert(hashtable,node->SemanticInfo);
+            }
+            else
+            {
+                reporterror(node->linenum,ConflictStructDefinition,"Redinifition of the struct");
+            }
         }
         
     }
@@ -173,19 +192,43 @@ void SetHashTable_StructSpecifier(HashTable_ptr hashtable,TreeNode_ptr node){
     {
         if (match_with_var(node,2,STRUCT,TAG)==1)
         {
-            SemanticInfo_ptr p=malloc(sizeof(SemanticInfo));
-            TreeNode_ptr node=node->children[1];
-            p=node->SemanticInfo;
-            p->isstruct=1;
-            p->semanticarrayinfo=NULL;
-            hash_table_insert(hashtable,p);
-            node->SemanticInfo=p;
+            //结构体里啥都没有，这种一般是使用结构体，或者利用struct tag 去定义一个结构体
+            // SemanticInfo_ptr p=malloc(sizeof(SemanticInfo));
+            // TreeNode_ptr node=node->children[1];
+            // p=node->SemanticInfo;
+            // p->isstruct=1;
+            // p->semanticarrayinfo=NULL;
+            // hash_table_insert(hashtable,p);
+            // node->SemanticInfo=p;
+            TreeNode_ptr child=node->children[1];
+            SemanticInfo_ptr p=hash_table_lookup(hashtable,child->SemanticInfo->name);
+            if (!p)
+            {
+                //没有查到结构体
+                reporterror(node->linenum,UndefinedStruct,"can not use undefined struct");
+            }
+            else if (p)
+            {
+                //是否是结构体名
+                if (p->isstruct==0)
+                {
+                    //使用了非结构体的变量名
+                    reporterror(node->linenum,MemberAccessOnNonStruct,"can not use that variable as struct");
+                }
+                else
+                {
+                    node->SemanticInfo=p;
+                    node->SemanticInfo->isstruct=1;
+                } 
+            }
         }
     }
     
     
 
 }
+
+//使用struct的时候定义的id
 void SetHashTable_Tag(HashTable_ptr hashtable,TreeNode_ptr node){
     SemanticInfo_ptr p=malloc(sizeof(SemanticInfo));
     p->isID=1;
@@ -202,11 +245,10 @@ void SetHashTable_OptTag(HashTable_ptr hashtable,TreeNode_ptr node){
         p->name=child->ID;
         node->SemanticInfo=p;
     }
-    else
+    else if (node->child_count==0)
     {
-        //nothing here we initilize them with null
-    }
-    
+        return;
+    } 
     
 }
 
@@ -270,7 +312,7 @@ void SetHashTable_FunDec(HashTable_ptr hashtable,TreeNode_ptr node){
         }
         else if (match_with_var(node,3,ID,LP,VAR_LIST)==1)
         {
-            
+            return;
         }
         else
         {
@@ -349,6 +391,7 @@ void SetHashTable_Compstm(HashTable_ptr hashtable,TreeNode_ptr node){
     {
         //这里应该不用做什么，因为规约进行，调用这个函数的时机应该是规约的时候调用，此时DEF_LIST,STMT_LIST应该已经定义好了
         //这里也检查不出什么错误   
+        //错误全部在下面检查
     }
     else{
         return;
@@ -356,7 +399,169 @@ void SetHashTable_Compstm(HashTable_ptr hashtable,TreeNode_ptr node){
 }
 
 void SetHashTable_DefList(HashTable_ptr hashtable,TreeNode_ptr node){
-    
+    //从def拿上来的可以是ismutidef内容，也可能只是一个id定义
+    if (node->child_count==2)
+    {
+        //这里的任务仅仅是融合，在前面已经把变量insert过了，现在不需要insert
+        TreeNode_ptr child1=node->children[0];
+        TreeNode_ptr child2=node->children[1];
+        if (child1->SemanticInfo->ismulidef==0)
+        {
+            //即deflist产生空产生式
+            if (child2->child_count==0)
+            {
+                SemanticInfo_ptr p=malloc(sizeof(SemanticInfo));
+                p->val_type=SVT_VOID;
+                p->ismulidef=1;
+                SemanticmuldefInfo_ptr s=malloc(sizeof(SemanticFunctionInfo));
+                s->type_count=1;
+                TypeEntry_ptr* entries=malloc(s->type_count*sizeof(TypeEntry_ptr));
+                // 分配 entries 指针数组
+                s->entries = malloc(s->type_count * sizeof(TypeEntry*)); 
+
+                // 处理第一个 TypeEntry (index 0)
+                s->entries[0] = malloc(sizeof(TypeEntry)); // 分配 TypeEntry 结构体
+                s->entries[0]->type = child1->SemanticInfo->val_type;
+                s->entries[0]->var_count = 1; 
+
+                // 分配 var_names 数组
+                s->entries[0]->var_names = malloc(s->entries[0]->var_count * sizeof(char*));
+
+                // 复制变量名（深拷贝）
+                s->entries[0]->var_names[0] = child1->SemanticInfo->name;
+                p->semanticmuldefinfo=s;
+                node->SemanticInfo=p;
+            }
+            //多组定义式
+            else if (child2->child_count==2)
+            {
+                //判断是否拥有child1的类型，如果有直接添加，反之则需要新增加一个entry
+                node->SemanticInfo=child2->SemanticInfo;
+                TypeEntry_ptr entry=find_type_entry(node->SemanticInfo->semanticmuldefinfo,child1->SemanticInfo->val_type);
+                if (!entry)
+                {
+                    SemanticmuldefInfo_ptr s=node->SemanticInfo->semanticmuldefinfo;
+                    //空，需要创建新的entry
+                    int new_type_count = s->type_count + 1;
+                    TypeEntry** new_entries = realloc(s->entries, 
+                                                    new_type_count * sizeof(TypeEntry*));
+                    if (!new_entries) {
+                        // 处理内存分配失败
+                        perror("realloc failed");
+                        exit(EXIT_FAILURE);
+                    }
+                    s->entries = new_entries;
+
+                    // 创建新条目
+                    TypeEntry* new_entry = malloc(sizeof(TypeEntry));
+                    new_entry->type = child1->SemanticInfo->val_type;
+                    new_entry->var_count =1;
+
+                    // 分配变量名数组
+                    new_entry->var_names = malloc(new_entry->var_count * sizeof(char*));
+                    for (int i = 0; i < new_entry->var_count; i++) {
+                        new_entry->var_names[i] = 
+                            strdup(child1->SemanticInfo->name); // 深拷贝
+                    }
+                    // 将新条目加入数组
+                    s->entries[s->type_count] = new_entry;
+                    s->type_count = new_type_count;
+                }
+                else
+                {
+                    //拥有这个类型
+                    int new_var_count = entry->var_count + 1;
+
+                    // 扩展 var_names 数组
+                    char** new_names = realloc(entry->var_names, 
+                                             new_var_count * sizeof(char*));
+                    if (!new_names) {
+                        // 处理内存分配失败
+                        perror("realloc failed");
+                        exit(EXIT_FAILURE);
+                    }
+                    entry->var_names = new_names;
+            
+                    // 添加新变量名（假设 semanticmuldefinfo 存储变量名数组）
+                    // for (int i = 0; i < child_info->semanticmuldefinfo->count; i++) {
+                    //     int dst_index = target_entry->var_count + i;
+                    //     target_entry->var_names[dst_index] = 
+                    //         strdup(child_info->semanticmuldefinfo->names[i]); // 深拷贝
+                    // }
+                    entry->var_names[new_var_count-1]=child1->SemanticInfo->name;
+                    // 更新计数器
+                    entry->var_count = new_var_count;
+                }
+            }
+        }
+        else if (child1->SemanticInfo->ismulidef==1)
+        {
+            //意味着def本身也是一个单类型多定义的方式，也是查看
+            if (child2->child_count==0)
+            {
+                node->SemanticInfo=child1->SemanticInfo;
+            }
+            else if (child2->child_count==2)
+            {
+                node->SemanticInfo=child2->SemanticInfo;
+                //child1必然只有一个类型，已经定义在val_type中
+                TypeEntry_ptr entry=find_type_entry(node->SemanticInfo->semanticmuldefinfo,child1->SemanticInfo->val_type);
+                if (!entry)
+                {
+                    SemanticmuldefInfo_ptr s=node->SemanticInfo->semanticmuldefinfo;
+                    //空，需要创建新的entry
+                    int new_type_count = s->type_count + 1;
+                    TypeEntry** new_entries = realloc(s->entries, 
+                                                    new_type_count * sizeof(TypeEntry*));
+                    if (!new_entries) {
+                        // 处理内存分配失败
+                        perror("realloc failed");
+                        exit(EXIT_FAILURE);
+                    }
+                    s->entries = new_entries;
+
+                    // 创建新条目
+                    TypeEntry* new_entry = malloc(sizeof(TypeEntry));
+                    new_entry->type = child1->SemanticInfo->val_type;
+                    new_entry->var_count =child1->SemanticInfo->semanticmuldefinfo->entries[0]->var_count;
+                    // 分配变量名数组
+                    new_entry->var_names = malloc(new_entry->var_count * sizeof(char*));
+                    for (int i = 0; i < new_entry->var_count; i++) {
+                        new_entry->var_names[i] = 
+                            strdup(child1->SemanticInfo->semanticmuldefinfo->entries[0]->var_names[i]); // 深拷贝
+                    }
+                    // 将新条目加入数组
+                    s->entries[s->type_count] = new_entry;
+                    s->type_count = new_type_count;
+                }
+                else
+                {
+                    //拥有这个类型
+                    int new_var_count = entry->var_count + child1->SemanticInfo->semanticmuldefinfo->entries[0]->var_count;
+
+                    // 扩展 var_names 数组
+                    char** new_names = realloc(entry->var_names, 
+                                             new_var_count * sizeof(char*));
+                    if (!new_names) {
+                        // 处理内存分配失败
+                        perror("realloc failed");
+                        exit(EXIT_FAILURE);
+                    }
+                    entry->var_names = new_names;
+            
+                    // 添加新变量名（假设 semanticmuldefinfo 存储变量名数组）
+                    for (int i = 0; i < child1->SemanticInfo->semanticmuldefinfo->entries[0]->var_count; i++) {
+                        int dst_index = entry->var_count + i;
+                        entry->var_names[dst_index] = 
+                            strdup(child1->SemanticInfo->semanticmuldefinfo->entries[0]->var_names[i]); // 深拷贝
+                    }
+                    // entry->var_names[new_var_count-1]=child1->SemanticInfo->name;
+                    // 更新计数器
+                    entry->var_count = new_var_count;
+                }
+            }
+        }
+    }
 }
 void SetHashTable_VarDec(HashTable_ptr hashtable,TreeNode_ptr node){
     if (node->child_count==1)
@@ -377,6 +582,7 @@ void SetHashTable_VarDec(HashTable_ptr hashtable,TreeNode_ptr node){
         p->column_number=child2->intval;
         p->row_number=1;
         node->SemanticInfo->semanticarrayinfo=p;
+        // hash_table_insert(hashtable,node->SemanticInfo);
     }
 }
 
@@ -394,6 +600,7 @@ void SetHashTable_Dec(HashTable_ptr hashtable,TreeNode_ptr node){
         if (match_with_var(node,3,VAR_DEC,ASSIGNOP,EXP))
         {
             node->SemanticInfo=child1->SemanticInfo;
+            //这里类型必然可以判断，如果exp是int,float自然，如果是id,则必然前面已经定义，否则进入报错，类型依然改为svt_void
             node->SemanticInfo->val_type=child2->SemanticInfo->val_type;            
             // //是一个尚未定义的数组
             // node->SemanticInfo=child1->SemanticInfo;
@@ -405,16 +612,17 @@ void SetHashTable_Dec(HashTable_ptr hashtable,TreeNode_ptr node){
     }    
 }
 
-
+///1这里定义的必然是一个类型的
 void SetHashTable_DecList(HashTable_ptr hashtable,TreeNode_ptr node){
-    if (match_with_var(node,1,DEC)==1)
+    if (node->child_count==1)
     {
         //这里本意增加idlist就是为了处理多个变量定义的情况，既然只有一个，那就正常处理即可
         //正常insert
         TreeNode_ptr child=node->children[0];
+        node->SemanticInfo->ismulidef=0;
         node->SemanticInfo=child->SemanticInfo;
     }
-    else if (match_with_var(node,3,DEC,COMMA,DEC_LIST)==1)
+    else if (node->child_count==3)
     {
         ///todo 多个Declist定义获取
         //事实上这里有点偷懒，应当还需要记录类型，鉴于没有这类测试就索性算了。
@@ -423,90 +631,137 @@ void SetHashTable_DecList(HashTable_ptr hashtable,TreeNode_ptr node){
         // TreeNode_ptr child2=node->children[1];
         TreeNode_ptr child3=node->children[2];
         node->SemanticInfo->ismulidef=1;
-        //空的，第一次需要增加的有2个
-        SemanticIDDefInfo_ptr p=malloc(sizeof(SemanticIDDefInfo));
-        if (!child3->SemanticInfo->semanticiddefinfo)
+        // if (!child3->SemanticInfo->semanticiddefinfo)
+        // {
+        //     p->number=2;
+        //     p->val_name=malloc(p->number*sizeof(char*));
+        //     p->val_name[0]=child1->SemanticInfo->name;
+        //     p->val_name[1]=child3->SemanticInfo->name;
+        // }
+        // else
+        // {
+        //     p=child3->SemanticInfo->semanticiddefinfo;
+        //     p->number=p->number+1;
+        //     p->val_name=realloc(p->val_name,p->number*sizeof(char*));
+        //     p->val_name[p->number-1]=child1->SemanticInfo->name;   
+        // }
+        if (!child3->SemanticInfo->semanticmuldefinfo)
         {
-            p->number=2;
-            p->val_name=malloc(p->number*sizeof(char*));
-            p->val_name[0]=child1->SemanticInfo->name;
-            p->val_name[1]=child3->SemanticInfo->name;
+            SemanticmuldefInfo_ptr p=malloc(sizeof(SemanticmuldefInfo));
+            //如果子节点是空的，说明存在多个定义
+            p->type_count=1;
+            //后续如果有多个定义需要扩容
+            TypeEntry_ptr* type=malloc(p->type_count*sizeof(TypeEntry_ptr));
+            p->entries=type;
+            type[0] = malloc(sizeof(TypeEntry));
+            type[0]->type=SVT_VOID;
+            type[0]->var_count=2;
+            char** var_names=malloc(type[0]->var_count*sizeof(char*));
+            type[0]->var_names=var_names;
+            var_names[0]=child1->SemanticInfo->name;
+            var_names[1]=child3->SemanticInfo->name;
+            node->SemanticInfo->semanticmuldefinfo=p;
         }
         else
         {
-            p=child3->SemanticInfo->semanticiddefinfo;
-            p->number=p->number+1;
-            p->val_name=realloc(p->val_name,p->number*sizeof(char*));
-            p->val_name[p->number-1]=child1->SemanticInfo->name;
-            
+            //说明declist非空，说明要定义的不只2个
+            //此时必然只有一个entries,只有到了deflist才会有多个entries
+            SemanticmuldefInfo_ptr p=child3->SemanticInfo->semanticmuldefinfo;
+            p->entries[0]->var_count+=1;
+            p->entries[0]->var_names=realloc(p->entries[0]->var_names,p->entries[0]->var_count*sizeof(char*));
+            p->entries[0]->var_names[p->entries[0]->var_count-1]=child1->SemanticInfo->name;
+            node->SemanticInfo->semanticmuldefinfo=p;
         }
     }
+
 }
+//确保一次定义完全一整个int a,b,c的内容
 void SetHashTable_Def(HashTable_ptr hashtable,TreeNode_ptr node){
     TreeNode_ptr child1=node->children[0];
     TreeNode_ptr child2=node->children[1];
-    // printf("%d,%d",child1->SemanticInfo->val_type,child2->SemanticInfo->val_type);
-    if ((child1->SemanticInfo->val_type==child2->SemanticInfo->val_type)&&(child2->SemanticInfo->val_type!=SVT_VOID))
+    if (child2->SemanticInfo->ismulidef==0)
     {
-        ///如果从下面定义上来拥有类型，说明下面已经把类型给定义了
-        ///需要查看是否重复
-        SemanticInfo_ptr p=hash_table_lookup(hashtable,child2->SemanticInfo->name);
-        if (!p)
+        //只有一个变量
+        if ((child1->SemanticInfo->val_type==child2->SemanticInfo->val_type)&&(child2->SemanticInfo->val_type!=SVT_VOID))
         {
-            node->SemanticInfo=child2->SemanticInfo;
-            hash_table_insert(hashtable,node->SemanticInfo);
-        }
-        else
-        {
-            reporterror(node->linenum,VariableNameRedefinition,"can not redefinition the variable");
-            printf("1");
-        }
-    }
-    else if ((child1->SemanticInfo->val_type!=child2->SemanticInfo->val_type)&&(child2->SemanticInfo->val_type==SVT_VOID)&&(child1->SemanticInfo->val_type!=SVT_VOID))
-    {
-        if (child2->SemanticInfo->ismulidef==0)
-        {
-            //只定义一个
+            ///如果从下面定义上来拥有类型，说明下面已经把类型给定义了
+            ///需要查看是否重复
             SemanticInfo_ptr p=hash_table_lookup(hashtable,child2->SemanticInfo->name);
             if (!p)
             {
                 node->SemanticInfo=child2->SemanticInfo;
-                node->SemanticInfo->val_type=child1->SemanticInfo->val_type;
-                printf("[Def]%d\n",node->SemanticInfo->val_type);
                 hash_table_insert(hashtable,node->SemanticInfo);
             }
             else
             {
                 reporterror(node->linenum,VariableNameRedefinition,"can not redefinition the variable");
+                printf("1");
+            }
+        }
+        //如果没有类型
+        else if ((child1->SemanticInfo->val_type!=child2->SemanticInfo->val_type)&&(child2->SemanticInfo->val_type==SVT_VOID)&&(child1->SemanticInfo->val_type!=SVT_VOID))
+        {
+            SemanticInfo_ptr p=hash_table_lookup(hashtable,child2->SemanticInfo->name);
+            if (!p)
+            {
+                node->SemanticInfo=child1->SemanticInfo;
+                node->SemanticInfo->isID=1;
+                node->SemanticInfo->name=child2->SemanticInfo->name;
+                if (child2->SemanticInfo->isArray==1)
+                {
+                    node->SemanticInfo->isArray=1;
+                    node->SemanticInfo->semanticarrayinfo=child2->SemanticInfo->semanticarrayinfo;
+                }
+                printf("[Def]%d\n",node->SemanticInfo->val_type);
+                printf("[Def]:%s\n",node->SemanticInfo->name);
+                hash_table_insert(hashtable,node->SemanticInfo);
+            }
+            else if(p)
+            {
+                reporterror(node->linenum,VariableNameRedefinition,"can not redefinition the variable");
                 printf("2");
             }
-        }
-        else
+            // else if (p&&p->isstruct==1)
+            // {
+            //     //利用结构体定义一个变量
+            //     node->SemanticInfo=p;
+            //     node->SemanticInfo->name=child2->SemanticInfo->name;
+            // }
+            
+        } 
+        else if ((child1->SemanticInfo->val_type!=child2->SemanticInfo->val_type)&&(child1->SemanticInfo->val_type!=SVT_VOID)&&(child2->SemanticInfo->val_type!=SVT_VOID))
         {
-            for(int i=0;i<child2->SemanticInfo->semanticiddefinfo->number;i++){
-                SemanticInfo_ptr p=hash_table_lookup(hashtable,child2->SemanticInfo->semanticiddefinfo->val_name[i]);
-                if (!p)
-                {
-                    node->SemanticInfo=child2->SemanticInfo;
-                    node->SemanticInfo->val_type=child1->SemanticInfo->val_type;
-                    hash_table_insert(hashtable,node->SemanticInfo);
-                }
-                else
-                {
-                    reporterror(node->linenum,VariableNameRedefinition,"can not redefinition the variable");
-                    printf("3");
-                }
-                printf("%d",i);
+            reporterror(node->linenum,AssignmentTypeMismatch,"type with defination is miss type");
+        }   
+    }
+    else if (child2->SemanticInfo->ismulidef==1)
+    {
+        //说明定义了多个变量，此时变量不在name
+        node->SemanticInfo=child2->SemanticInfo;
+        node->SemanticInfo->val_type=child1->SemanticInfo->val_type;
+        SemanticmuldefInfo_ptr p=node->SemanticInfo->semanticmuldefinfo;
+        //现在这里必然还是只有一个type entry
+        TypeEntry_ptr type=p->entries[0];
+        int val_number=type->var_count;
+        type->type=node->SemanticInfo->val_type;
+        for (int i = 0; i < val_number; i++)
+        {
+            SemanticInfo_ptr s=hash_table_lookup(hashtable,type->var_names[i]);
+            if (!s)
+            {
+                // reporterror(node->linenum,VariableNameRedefinition,"can not redefinition the variable");
+                //如果没有就插入
+                SemanticInfo_ptr new_val=malloc(sizeof(SemanticInfo));
+                new_val->isID=1;
+                new_val->name=type->var_names[i];
+                new_val->val_type=type->type;
+                hash_table_insert(hashtable,new_val);
+            }
+            else
+            {
+                reporterror(node->linenum,VariableNameRedefinition,"can not redefinition the variable");
             }
         }
-        
-        
-        
-    }
-    
-    else if ((child1->SemanticInfo->val_type!=child2->SemanticInfo->val_type)&&(child1->SemanticInfo->val_type!=SVT_VOID)&&(child2->SemanticInfo->val_type!=SVT_VOID))
-    {
-        reporterror(node->linenum,AssignmentTypeMismatch,"type with defination is miss type");
     }
 }
 
@@ -547,13 +802,13 @@ void SetHashTable_StmtList(HashTable_ptr hashtable,TreeNode_ptr node){
 void SetHashTable_ExtDef(HashTable_ptr hashtable,TreeNode_ptr node){
     if (match_with_var(node,3,SPECIFIER,EXT_DEC_LIST,SEMI)==1)
     {
-        
+        return;
     }
     else if (match_with_var(node,2,SPECIFIER,SEMI)==1)
     {
         TreeNode_ptr child1=node->children[0];
         node->SemanticInfo=child1->SemanticInfo;
-        printf("\033[33m warning: there is only defination for type but not for varaible \033[0m \n");
+        printf("\033[33m warning: there is only defination for type such as struct,function but not for varaible \033[0m \n");
     }
     else if (match_with_var(node,3,SPECIFIER,FUN_DEC,COMP_STM)==1)
     {
@@ -586,6 +841,9 @@ void SetHashTable_ExtDef(HashTable_ptr hashtable,TreeNode_ptr node){
     // {
         
     // }
+}
+void SetHashTable_ExtDecList(HashTable_ptr hashtable,TreeNode_ptr node){
+
 }
 void SetHashTable_ExtDefList(HashTable_ptr hashtable,TreeNode_ptr node){
     if (match_with_var(node,2,EXT_DEF,EXT_DEC_LIST)==1)
@@ -647,7 +905,7 @@ void SetHashTable_Exp(HashTable_ptr hashtable,TreeNode_ptr node){
         {
             // printf("ffff");
             ///赋值语句基本只能给变量赋值，所以地一个node必然是从id规约过来的
-            if (child1->SemanticInfo->isID)
+            if (child1->SemanticInfo->isID==1)
             {
                 if ((child1->SemanticInfo->val_type!=child3->SemanticInfo->val_type)&&(child1->SemanticInfo->val_type!=SVT_VOID)&&(child3->SemanticInfo->val_type!=SVT_VOID))
                 {
@@ -798,30 +1056,45 @@ void SetHashTable_Exp(HashTable_ptr hashtable,TreeNode_ptr node){
         }
         else if (match_with_var(node,3,EXP,DOT,ID)==1)
         {
-            ///这个时候说明是结构体访问
-            if (!child1->SemanticInfo->isstruct)
+            SemanticInfo_ptr p=hash_table_lookup(hashtable,child1->SemanticInfo->name);
+            if (!p)
             {
-                reporterror(node->linenum,UndefinedStruct,"Member access on non-struct");
+                reporterror(node->linenum,UndefinedStruct,"Member access on non-struct,you can noly use '.' on struct type variable");
             }
-            else if (child1->SemanticInfo->isstruct)
+            else
             {
-                ///访问的变量部队
                 int flag=0;
-                SemanticStructInfo_ptr p=child1->SemanticInfo->semanticstructinfo;
-                int number=p->val_number;
-                for(int i=0;i<number;i++){
-                    if (p->val_name[i]==child3->ID)
-                    {
-                        flag=1;
-                        break;
-                    }
-                }
-                if (flag){}
-                else
+                printf("[exp on struct access]:%s\n",p->name);
+                printf("[exp on struct access]:%d\n",p->isstruct);
+                if (p->isstruct==0)
                 {
-                    reporterror(node->linenum,UndefinedStructMember,"can not find struct member");
+                    reporterror(node->linenum,UndefinedStruct,"Member access on non-struct,you can noly use '.' on struct type variable");
                 }
-            } 
+                else if (p->isstruct==1)
+                {
+                    for (int  i = 0; i < p->semanticmuldefinfo->type_count; i++)
+                    {
+                        TypeEntry_ptr entry=p->semanticmuldefinfo->entries[i];
+                        printf("#%d\n",entry->type);
+                        for (int j = 0; j < entry->var_count; j++)
+                        {
+                            if (strcmp(entry->var_names[j],child3->ID)==0)
+                            {
+                                flag=1;
+                            }
+                        }
+                    }
+                    if (flag==0)
+                    {
+                        reporterror(node->linenum,UndefinedStructMember,"can not find member on struct");
+                    }
+                    else
+                    {
+                        node->SemanticInfo=p;
+                    }
+                    
+                }
+            }
         } 
     }   
     else if (node->child_count=4)
@@ -872,11 +1145,20 @@ void SetHashTable_Exp(HashTable_ptr hashtable,TreeNode_ptr node){
         {
             ///意味着这必然是一个数组访问
             // TreeNode_ptr child1
-            SemanticInfo_ptr p=hash_table_lookup(hashtable,child1->SemanticInfo->name);
-            if (p->isArray==0)
+            SemanticInfo_ptr p1=hash_table_lookup(hashtable,child1->SemanticInfo->name);
+            SemanticInfo_ptr p2=child3->SemanticInfo;
+            if (p1->isArray==0)
             {
                 reporterror(node->linenum,ArrayAccessOnNonArray,"can not application array on a none array type varible");
             }
+            else
+            {
+                if (p2->val_type!=SVT_INT)
+                {
+                    reporterror(node->linenum,ArrayIndexTypeMismatch,"can only access to array with integer index");
+                }
+            }
+            
         }
     }
     return;
@@ -978,7 +1260,6 @@ int check_on_logic_caculate(HashTable_ptr hashtable,TreeNode_ptr father,TreeNode
     }
     else if (node1->SemanticInfo->isID==0&&node2->SemanticInfo->isID!=0)
     {
-        // printf("lllllll");
         SemanticInfo_ptr p=hash_table_lookup(hashtable,node2->SemanticInfo->name);
         if (p==NULL)
         {
@@ -1022,7 +1303,12 @@ int check_on_logic_caculate(HashTable_ptr hashtable,TreeNode_ptr father,TreeNode
     {
         return 0;
     }
-    
-    
-    
+}
+TypeEntry_ptr find_type_entry(SemanticmuldefInfo_ptr s, int target_type) {
+    for (int i = 0; i < s->type_count; i++) {
+        if (s->entries[i]->type == target_type) {
+            return s->entries[i]; // 找到匹配类型
+        }
+    }
+    return NULL; // 未找到
 }

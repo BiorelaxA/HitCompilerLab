@@ -41,69 +41,70 @@ HashTable_ptr create_hash_table(int size) {
 
 /// 插入键值对（如果存在则更新值）
 ///u如果是多个定义的变量则插入多个，如果是一个函数包含多个参数，则之插入一个
+/// 这里不用考虑ismulidef
 void hash_table_insert(HashTable* table, SemanticInfo_ptr value) {
-    if (value->ismulidef==0)
-    {
-        int index = hash_map(value->name);
+    // if (value->ismulidef==0)
+    // {
+    int index = hash_map(value->name);
 
-        printf("[hash_table_insert]:%s\n",value->name);
-        //token的数值存入token
-        char* key=value->name;
-        HashNode_ptr current = table->buckets[index];
+    printf("[hash_table_insert]:%s\n",value->name);
+    //token的数值存入token
+    char* key=value->name;
+    HashNode_ptr current = table->buckets[index];
 
-        // 检查是否已存在相同key,直到查完
-        while (current) {
-            if (current->key == key) {
-                //todo printerror
-                // printf("1");
-                return;
-            }
-            current = current->next;
+    // 检查是否已存在相同key,直到查完
+    while (current) {
+        if (current->key == key) {
+            //todo printerror
+            // printf("1");
+            return;
         }
-
-        // 创建新节点并插入链表头部
-        HashNode_ptr new_node = malloc(sizeof(HashNode));
-        if (!new_node) return;
-
-        new_node->key = key;
-        // printf("[hash_table_insert]insert finish:%s\n",new_node->key);
-        new_node->value = value;
-        new_node->next = table->buckets[index];
-        table->buckets[index] = new_node;
-        table->count++;
+        current = current->next;
     }
-    else
-    {
-        for (int  i = 0; i < value->semanticiddefinfo->number; i++)
-        {
-            int index = hash_map(value->semanticiddefinfo->val_name[i]);
-            // printf("[hash_table_insert]:%d\n",index);
-            //token的数值存入token
-            char* key=value->semanticiddefinfo->val_name[i];
-            HashNode_ptr current = table->buckets[index];
 
-            // 检查是否已存在相同key,直到查完
-            while (current) {
-                if (current->key == key) {
-                    //todo printerror
-                    // printf("1");
-                    return;
-                }
-                current = current->next;
-            }
+    // 创建新节点并插入链表头部
+    HashNode_ptr new_node = malloc(sizeof(HashNode));
+    if (!new_node) return;
 
-            // 创建新节点并插入链表头部
-            HashNode_ptr new_node = malloc(sizeof(HashNode));
-            if (!new_node) return;
+    new_node->key = key;
+    // printf("[hash_table_insert]insert finish:%s\n",new_node->key);
+    new_node->value = value;
+    new_node->next = table->buckets[index];
+    table->buckets[index] = new_node;
+    table->count++;
+    // }
+    // else
+    // {
+    //     for (int  i = 0; i < value->semanticmuldefinfo->number; i++)
+    //     {
+    //         int index = hash_map(value->semanticiddefinfo->val_name[i]);
+    //         // printf("[hash_table_insert]:%d\n",index);
+    //         //token的数值存入token
+    //         char* key=value->semanticiddefinfo->val_name[i];
+    //         HashNode_ptr current = table->buckets[index];
 
-            new_node->key = key;
-            // printf("[hash_table_insert]insert finish:%s\n",new_node->key);
-            new_node->value = value;
-            new_node->next = table->buckets[index];
-            table->buckets[index] = new_node;
-            table->count++;
-        }
-    }
+    //         // 检查是否已存在相同key,直到查完
+    //         while (current) {
+    //             if (current->key == key) {
+    //                 //todo printerror
+    //                 // printf("1");
+    //                 return;
+    //             }
+    //             current = current->next;
+    //         }
+
+    //         // 创建新节点并插入链表头部
+    //         HashNode_ptr new_node = malloc(sizeof(HashNode));
+    //         if (!new_node) return;
+
+    //         new_node->key = key;
+    //         // printf("[hash_table_insert]insert finish:%s\n",new_node->key);
+    //         new_node->value = value;
+    //         new_node->next = table->buckets[index];
+    //         table->buckets[index] = new_node;
+    //         table->count++;
+    //     }
+    // }
     // // printf("[hash_table_insert]:%s\n",value->name);
     // int index = hash_map(value->name);
     // // printf("[hash_table_insert]:%d\n",index);
