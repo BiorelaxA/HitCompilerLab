@@ -1,9 +1,7 @@
 %{
-//#include "lex.yy.c"
-//#include "include/TreeNode.h"
-//#include "include/error.h"
-#include "include/CmmparserTypes.h"
 #include <stdio.h>
+#include "include/CmmparserTypes.h"
+
 extern int yylex();
 void yyerror(const char *s);
 %}

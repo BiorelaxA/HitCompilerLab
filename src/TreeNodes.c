@@ -144,7 +144,9 @@ void add_children(TreeNode_ptr father,int childnum,...) {
         father->children[father->child_count] = child;
         father->child_count++;
     }
-    SetHashTable(GLOBAL_HASH_TABLE,father);
+    #ifdef LAB2_ENABLE_HASH
+    SetHashTable(GLOBAL_HASH_TABLE, father);
+    #endif
     va_end(args);
 }
 

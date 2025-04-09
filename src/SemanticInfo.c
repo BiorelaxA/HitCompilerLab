@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-27 16:16:31
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-30 15:07:59
+ * @LastEditTime: 2025-04-09 22:18:38
  * @FilePath: /Lab/src/SemanticInfo.c
  * @Description: file to definit semantic information
  * 
@@ -624,7 +624,6 @@ void SetHashTable_DecList(HashTable_ptr hashtable,TreeNode_ptr node){
     }
     else if (node->child_count==3)
     {
-        ///todo 多个Declist定义获取
         //事实上这里有点偷懒，应当还需要记录类型，鉴于没有这类测试就索性算了。
         //意味着需要获得多个定义
         TreeNode_ptr child1=node->children[0];
@@ -903,7 +902,6 @@ void SetHashTable_Exp(HashTable_ptr hashtable,TreeNode_ptr node){
         TreeNode_ptr child3=node->children[2];
         if (match_with_var(node,3,EXP,ASSIGNOP,EXP)==1)
         {
-            // printf("ffff");
             ///赋值语句基本只能给变量赋值，所以地一个node必然是从id规约过来的
             if (child1->SemanticInfo->isID==1)
             {

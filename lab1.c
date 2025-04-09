@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-23 11:37:03
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-25 18:39:05
+ * @LastEditTime: 2025-04-09 22:45:51
  * @FilePath: /Lab/lab1.c
  * @Description: main file for lab1
  * 
@@ -11,18 +11,24 @@
 #include <stdlib.h>
 #include<stdint.h>
 #include <stdio.h>
-#include "include/TreeNode.h"
+// #include "include/TreeNode.h"
+// #include "include/error.h"
+#include "include/CmmparserTypes.h"
 #include "syntax.tab.h"
-#include "include/error.h"
+#include "lex.yy.c"
 #include <string.h>
+
 extern int yylex(void); // 添加 yylex 的函数声明
 extern void yyrestart(FILE* input_file);
 extern FILE* yyin;
 const int PATH_MAX=100;
+StringStack_ptr Function_Stack=NULL;
+HashTable_ptr GLOBAL_HASH_TABLE = NULL;
 // #define YYDEBUG 1
 FILE* create_for_output(const char* filepath);
 int main(int argc, char const *argv[])
 {
+
     // printf("fdfdfse\n");
     if (argc<2)
     {

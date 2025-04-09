@@ -19,6 +19,8 @@
         "error.h": "c",
         "semanticinfo.h": "c",
         "libc-header-start.h": "c",
-        "limits.h": "c"
+        "limits.h": "c",
+        "cmmparsertypes.h": "c",
+        "syntax.tab.h": "c"
     }
 }
