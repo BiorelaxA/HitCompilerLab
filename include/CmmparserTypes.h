@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-29 00:17:18
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-13 15:27:34
+ * @LastEditTime: 2025-04-13 22:47:16
  * @FilePath: /Lab/include/CmmparserTypes.h
  * @Description: CmmparserTypes.h
  * 
@@ -106,6 +106,20 @@ typedef enum ErrorType_e{
 //     "ImplicitFunctionDeclaration",
 //     "UNDEF_SEMANTIC_ERROR"
 // };
+struct Intercode
+{
+    /// @brief 定义这个中间代码的类型，具体见实验教程3
+    int kind;
+    /// @brief 需要打印的内容
+    char* content;
+    /// @brief 是否需要next
+    int isneednext;
+    /// @brief 只有在isneednext为1时才有用
+    char* next;
+};
+typedef struct Intercode Intercode;
+typedef struct Intercode* Intercode_ptr;
+
 struct SemanticFunctionInfo
 {
     int val_number;
@@ -285,16 +299,6 @@ int match_with_var(TreeNode_ptr node,int child_num,...);
 extern StringStack_ptr Function_Stack;
 
 
-struct Intercode
-{
-    /// @brief 定义这个中间代码的类型，具体见实验教程3
-    int kind;
-    /// @brief 需要打印的内容
-    char* content;
-    
-};
-typedef struct Intercode Intercode;
-typedef struct Intercode* Intercode_ptr;
 
 enum Intercode_kind{
     /// @brief 数字
@@ -310,7 +314,7 @@ enum Intercode_kind{
     /// @brief 包括有/无条件跳转
     JUMP=6,
     /// @brief 返回
-    RETURN=7,
+    SVT_RETURN=7,
     /// @brief 声明
     DECMEM=8,
     /// @brief 使用函数
@@ -322,19 +326,18 @@ enum Intercode_kind{
     /// @brief 下面2个是特殊的类型函数不包含在function中
     READ=13,
     WRITE=14
-}
+};
 typedef struct {
     Intercode_ptr *codes;   // 存储中间代码指针的数组
     int size;               // 当前元素数量
     int capacity;           // 数组总容量
 } IntercodeList;
-
 typedef IntercodeList* IntercodeList_ptr;
-
-
-
-
-
+void translate(TreeNode_ptr node);
+IntercodeList_ptr initIntercodeList(int initialCapacity);
+void freeIntercodeList(IntercodeList_ptr list);
+void DisplayIntercodelist(TreeNode_ptr node);
+extern IntercodeList_ptr INTERCODELIST;
 
 
 

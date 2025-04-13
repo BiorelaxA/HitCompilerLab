@@ -2,17 +2,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug lab2",
+            "name": "Debug lab3",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/lab2",  // 可执行文件路径
-            "args": ["${workspaceFolder}/test/Lab2_test/test12.cmm","-g"],            // 调试时传入的参数（如测试文件）
+            "program": "${workspaceFolder}/lab3",  // 可执行文件路径
+            "args": ["${workspaceFolder}/test/Lab3_test/test1.cmm","-g"],            // 调试时传入的参数（如测试文件）
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "preLaunchTask": "build-lab2",        // 调试前先执行构建任务
+            "preLaunchTask": "build-lab3",        // 调试前先执行构建任务
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

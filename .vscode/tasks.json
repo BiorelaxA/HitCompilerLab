@@ -2,9 +2,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build-lab2",
+            "label": "build-lab3",
             "type": "shell",
-            "command": "make clean && make lab2",
+            "command": "make cleanlab3 && make lab3",
             "args": [],
             "group": {
                 "kind": "build",

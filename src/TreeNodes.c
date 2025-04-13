@@ -147,6 +147,7 @@ void add_children(TreeNode_ptr father,int childnum,...) {
     #ifdef LAB2_ENABLE_HASH
     SetHashTable(GLOBAL_HASH_TABLE, father);
     #endif
+    translate(father);
     //这里继续使用条件编译，启动中间代码生成
     va_end(args);
 }

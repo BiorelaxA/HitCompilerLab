@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-27 16:16:31
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-13 10:55:19
+ * @LastEditTime: 2025-04-13 18:16:45
  * @FilePath: /Lab/src/SemanticInfo.c
  * @Description: file to definit semantic information
  * 
@@ -1211,6 +1211,12 @@ int match_with_var(TreeNode_ptr node,int child_num,...){
     va_list args;
     // int flag=1;
     va_start(args,child_num);
+    int child_count=node->child_count;
+    if (child_count!=child_num)
+    {
+        return 0;
+    }
+    
     for (int i=0;i<child_num;i++){
         int arg=va_arg(args,int);
         // printf("%d\n",arg);
