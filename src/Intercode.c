@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-04-12 22:09:12
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-13 12:47:36
+ * @LastEditTime: 2025-04-13 16:01:43
  * @FilePath: /Lab/src/Intercode.c
  * @Description: Intercode tranlate
  * 
@@ -34,6 +34,10 @@ void translate_StmtList(TreeNode_ptr node,IntercodeList_ptr intercodelist);
 void translate_Stmt(TreeNode_ptr node,IntercodeList_ptr intercodelist);
 void translate_Def(TreeNode_ptr node,IntercodeList_ptr intercodelist);
 void translate_DefList(TreeNode_ptr node,IntercodeList_ptr intercodelist);
+void translate_DecList(TreeNode_ptr node,IntercodeList_ptr intercodelist);
+void translate_Dec(TreeNode_ptr node,IntercodeList_ptr intercodelist);
+void translate_Exp(TreeNode_ptr node,IntercodeList_ptr intercodelist);
+void translate_Args(TreeNode_ptr node,IntercodeList_ptr IntercodeList);
 //根据规约的产生式来选择tranlate的方式,这个函数将在add_children在bison规约时使用进行分析
 void translate(TreeNode_ptr node,IntercodeList_ptr intercodelist){
     
@@ -91,13 +95,16 @@ void translate(TreeNode_ptr node,IntercodeList_ptr intercodelist){
         translate_Def(node,intercodelist);
         break;
     case DEC_LIST:
-        
+        translate_DecList(node,intercodelist);
         break;
     case DEC:
+        translate_Dec(node,intercodelist);
         break;
     case EXP:
+        translate_Exp(node,intercodelist);
         break;
     case ARGS:
+        translate_Args(node,intercodelist);
         break;
     default:
         break;
@@ -475,114 +482,365 @@ void translate_Dec(TreeNode_ptr node,IntercodeList_ptr intercodelist){
 /// @param node 
 /// @param intercodelist 
 void translate_Exp(TreeNode_ptr node,IntercodeList_ptr intercodelist){
+    
     if (match_with_var(node,3,EXP,ASSIGNOP,EXP)==1)
     {
-        /* code */
+        //赋值，可以现在打印出来
+
+        //必须赋值给变量
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        if (node1->SemanticInfo->isID==0)
+        {
+            printf("\033[33m warning: there is only defination for type such as struct,function but not for varaible \033[0m \n");
+            return;
+        }
+        char *name=node1->SemanticInfo->name;
+        //来自int
+        Intercode_ptr in1=node2->SemanticInfo->intercode;
+        //node2最后产生的变量
+        char* node2_temp=split_before_colon(in1->content);
+        Intercode_ptr in2=malloc(sizeof(Intercode));
+        in2->kind=ASSIGN;
+        in2->content=strncat(node1->SemanticInfo->name," := ",node2_temp,3);
+        addIntercode(intercodelist,in2);
+        node->SemanticInfo->intercode=in2;
     }
     else if (match_with_var(node,3,EXP,AND,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        //这里不加入list了，在if中会打印的
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in2=node2->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=RELOP;
+        in3->content=strncat(in1_temp,"&&",in2_temp,3);
+        node->SemanticInfo->intercode=in3;
+        
     }
     else if (match_with_var(node,3,EXP,OR,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in2=node2->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=RELOP;
+        in3->content=strncat(in1_temp,"||",in2_temp,3);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,3,EXP,EQ,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in2=node2->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=RELOP;
+        in3->content=strncat(in1_temp,"==",in2_temp,3);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,3,EXP,NEQ,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in2=node2->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=RELOP;
+        in3->content=strncat(in1_temp,"!=",in2_temp,3);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,3,EXP,LT,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in2=node2->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=RELOP;
+        in3->content=strncat(in1_temp,"<",in2_temp,3);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,3,EXP,LE,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in2=node2->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=RELOP;
+        in3->content=strncat(in1_temp,"<=",in2_temp,3);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,3,EXP,GT,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in2=node2->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=RELOP;
+        in3->content=strncat(in1_temp,">",in2_temp,3);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,3,EXP,GE,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in2=node2->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=RELOP;
+        in3->content=strncat(in1_temp,">=",in2_temp,3);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,3,EXP,PLUS,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in2=node2->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* in2_temp=split_before_colon(in2->content);
+        char* new=new_temp();
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=CACULATE;
+        in3->content=strncat(new," := ",in1_temp,"+",in2_temp,5);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,3,EXP,MINUS,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in2=node2->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* in2_temp=split_before_colon(in2->content);
+        char* new=new_temp();
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=CACULATE;
+        in3->content=strncat(new," := ",in1_temp,"-",in2_temp,5);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,3,EXP,STAR,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in2=node2->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* in2_temp=split_before_colon(in2->content);
+        char* new=new_temp();
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=CACULATE;
+        in3->content=strncat(new," := ",in1_temp,"*",in2_temp,5);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,3,EXP,DIV,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in2=node2->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* in2_temp=split_before_colon(in2->content);
+        char* new=new_temp();
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=CACULATE;
+        in3->content=strncat(new," := ",in1_temp,"/",in2_temp,5);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,3,LP,EXP,RP)==1)
     {
-        /* code */
+        //不会使用的
     }
     else if (match_with_var(node,2,MINUS,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* new=new_temp();
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=CACULATE;
+        in3->content=strncat(new," := ","-",in1_temp,4);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,2,NOT,EXP)==1)
     {
-        /* code */
+        TreeNode_ptr node1=node->children[0];
+        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        char* in1_temp=split_before_colon(in1->content);
+        char* new=new_temp();
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=CACULATE;
+        in3->content=strncat(new," := ","!",in1_temp,4);
+        node->SemanticInfo->intercode=in3;
     }
     else if (match_with_var(node,4,ID,LP,ARGS,RP)==1)
     {
-        /* code */
+        //使用带参数函数
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=node2->SemanticInfo->intercode;
+        Intercode_ptr in2=malloc(sizeof(Intercode));
+        in2->kind=ARG;
+        in2->content=strncat("ARG",in1->content,2);
+        addIntercode(intercodelist,in2);
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->kind=FUNCTION;
+        char* temp=new_temp();
+        in3->content=strncat(temp," := ","CALL",node1->SemanticInfo->name,4);
+        addIntercode(intercodelist,in3);
     }
     else if (match_with_var(node,3,ID,LP,RP)==1)
     {
-        /* code */
+        //使用不带参数函数
+        //需要判断是否为read/write函数
+        TreeNode_ptr node1=node->children[0];
+        if (node1->SemanticInfo->name=="read")
+        {
+            Intercode_ptr in=malloc(sizeof(Intercode));
+            in->kind=READ;
+            char* temp=new_temp();
+            in->content=strncat("READ ",temp,2);
+            node->SemanticInfo->intercode=in;
+            addIntercode(intercodelist,in);
+        }
+        else if (node1->SemanticInfo->name=="write")
+        {
+            Intercode_ptr in=malloc(sizeof(Intercode));
+            in->kind=READ;
+            char* temp=new_temp();
+            in->content=strncat("WRITE ",temp,2);
+            node->SemanticInfo->intercode=in;
+            addIntercode(intercodelist,in);
+        }
+        else
+        {
+            Intercode_ptr in=malloc(sizeof(Intercode));
+            in->kind=FUNCTION;
+            char* temp=new_temp();
+            in->content=strncat(temp," := ","CALL ",node1->SemanticInfo->name,4);
+            node->SemanticInfo->intercode=in;
+            addIntercode(intercodelist,in);
+        }
     }
     else if (match_with_var(node,4,EXP,LB,EXP,RB)==1)
     {
-        /* code */
+        //数组不出现，暂不实现
+        
     }
     else if (match_with_var(node,3,EXP,DOT,ID)==1)
     {
-        /* code */
+        //结构体，不出现，暂不实现
     }
     else if (match_with_var(node,1,ID)==1)
     {
-        /* code */
+       //不需要处理
     }
     else if (match_with_var(node,1,INT)==1)
     {
-        /* code */
+        //我们使用#表示立即数
+        TreeNode_ptr node1=node->children[0];
+        Intercode_ptr in=malloc(sizeof(Intercode));
+        char int_val[10];
+        sprintf(int_val,"%d",node1->intval);
+        char* temp=new_temp();
+        in->kind=ASSIGN;
+        in->content=strncat(temp," := ","#",int_val,4);
+        node->SemanticInfo->intercode=in;
+        addIntercode(intercodelist,in);
     }
     else if (match_with_var(node,1,FLOAT)==1)
     {
-        /* code */
+        //我们使用#表示立即数
+        TreeNode_ptr node1=node->children[0];
+        Intercode_ptr in=malloc(sizeof(Intercode));
+        char float_val[10];
+        sprintf(float_val,"%d",node1->floatval);
+        char* temp=new_temp();
+        in->kind=ASSIGN;
+        in->content=strncat(temp," := ","#",float_val,4);
+        node->SemanticInfo->intercode=in;
+        addIntercode(intercodelist,in);
 
     }
     else{
 
     }
 }
+void translate_Args(TreeNode_ptr node,IntercodeList_ptr IntercodeList){
+    if (match_with_var(node,3,EXP,COMMA,ARGS)==1)
+    {
+        TreeNode_ptr node1=node->children[0];
+        TreeNode_ptr node2=node->children[2];
+        Intercode_ptr in1=malloc(sizeof(Intercode));
+        char* temp=split_before_colon(node1->SemanticInfo->intercode->content);
+        in1->kind=ASSIGN;
+        in1->content=strncat(node2->SemanticInfo->intercode->content,temp," ",3);
+        node->SemanticInfo->intercode=in1;
 
+    }
+    else if (match_with_var(node,1,EXP)==1)
+    {
+       TreeNode_ptr node1=node->children[0];
+       Intercode_ptr in1=malloc(sizeof(Intercode));
+       in1->kind=ASSIGN;
+       char* temp=split_before_colon(node1->SemanticInfo->intercode->content);
+       in1->content=strcat(temp," ");
+       node->SemanticInfo->intercode=in1;
+    }
+}
 
+char* split_before_colon(const char* str) {
+    if (str == NULL) return NULL;  // 检查输入合法性
 
+    // 查找冒号的位置
+    char* colon_pos = strchr(str, ' ');
+    if (colon_pos == NULL) {
+        return NULL;  // 没有冒号则返回 NULL
+    }
 
+    // 计算冒号前的子字符串长度
+    size_t prefix_len = colon_pos - str;
 
+    // 动态分配内存（+1 用于存放 '\0'）
+    char* result = (char*)malloc(prefix_len + 1);
+    if (result == NULL) {
+        return NULL;  // 内存分配失败
+    }
 
+    // 复制子字符串
+    strncpy(result, str, prefix_len);
+    result[prefix_len] = '\0';  // 添加终止符
 
-
-
-
-
+    return result;
+}
+// 生成临时变量名（需手动释放内存）
+char* new_temp() {
+    static int counter = 0;      // 静态计数器
+    char buffer[32];             // 临时缓冲区
+    snprintf(buffer, sizeof(buffer), "v%d", counter++);
+    return strdup(buffer);       // 返回动态复制的字符串
+}
 
 // 初始化动态数组
 void initIntercodeList(IntercodeList *list, int initialCapacity) {

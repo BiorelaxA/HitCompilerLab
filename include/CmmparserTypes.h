@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-29 00:17:18
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-13 10:54:15
+ * @LastEditTime: 2025-04-13 15:27:34
  * @FilePath: /Lab/include/CmmparserTypes.h
  * @Description: CmmparserTypes.h
  * 
@@ -297,6 +297,8 @@ typedef struct Intercode Intercode;
 typedef struct Intercode* Intercode_ptr;
 
 enum Intercode_kind{
+    /// @brief 数字
+    RELOP=0,
     /// @brief 标号
     LABEL=1,
     /// @brief 函数
