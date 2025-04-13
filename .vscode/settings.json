@@ -1,0 +1,26 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "treenode.h": "c",
+        "stdlib.h": "c",
+        "stdio.h": "c",
+        "hashtable.h": "c",
+        "lab2.h": "c",
+        "typeinfo": "c",
+        "stdint.h": "c",
+        "array": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "optional": "c",
+        "system_error": "c",
+        "stdarg.h": "c",
+        "error.h": "c",
+        "semanticinfo.h": "c",
+        "libc-header-start.h": "c",
+        "limits.h": "c",
+        "cmmparsertypes.h": "c",
+        "syntax.tab.h": "c"
+    }
+}
