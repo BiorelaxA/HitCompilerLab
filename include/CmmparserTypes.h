@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-29 00:17:18
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-14 23:04:25
+ * @LastEditTime: 2025-04-15 00:25:44
  * @FilePath: /Lab/include/CmmparserTypes.h
  * @Description: CmmparserTypes.h
  * 
@@ -191,6 +191,7 @@ struct SemanticInfo
     SemanticFunctionInfo_ptr semanticFunctioninfo;
     SemanticmuldefInfo_ptr semanticmuldefinfo;
     SemanticArrayInfo_ptr semanticarrayinfo;
+    /// @brief 中间代码的临时变量
     char* temp;
 };
 typedef struct SemanticInfo SemanticInfo;

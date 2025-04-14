@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-04-12 22:09:12
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-15 00:07:42
+ * @LastEditTime: 2025-04-15 00:25:07
  * @FilePath: /Lab/src/Intercode.c
  * @Description: Intercode tranlate
  * 
@@ -13,10 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-// #include <stdio.h>
 #include <stdarg.h>
-// #include <stdlib.h>
-// #include <string.h>
 
 
 
@@ -326,17 +323,17 @@ void translate_ParamDec(TreeNode_ptr node){
     if (node->child_count==2)
     {
         TreeNode_ptr child=node->children[1];
-        char param[6]="PARAM ";
+        ///这里应该还需要处理多个参数的内容，这里todo
+        //处理插入到hashtable中，将临时变量插入到hashtable中todo
         Intercode_ptr in=malloc(sizeof(Intercode));
+        char* temp=new_temp();
         in->kind=PARAM;
         in->isprint=1;
         in->content=malloc(50*sizeof(char));
-        in->content=strcat(param,child->SemanticInfo->name);
+        sprintf(in->content,"%s %s\n","PARAM",temp);
+        in->res=temp;
         // node->SemanticInfo->intercode=in;
-        child->intercode=in;
-    }
-    else{
-        
+        // child->intercode=in;
     }
     
 }
@@ -418,10 +415,6 @@ void translate_Stmt(TreeNode_ptr node){
         }
         sprintf(in->content,"%s %s %s %s%d\n%s %s%s\n%s %s%d %s\n",i_f,node1->intercode->content,go_to,label,labelnum1,go_to,label,in1->next,LABEL,label,labelnum1,":");
         node3->intercode=in;
-        //todo向上传递next
-        // Intercode_ptr in1=malloc(sizeof(Intercode));
-        // in1->next=in->next;
-        // node->intercode=in1;
     }
     else if (node->child_count==7)
     {
@@ -453,6 +446,7 @@ void translate_Stmt(TreeNode_ptr node){
         in2->content=malloc(50*sizeof(char));
         node2->intercode->next=in3->next;
         in2->next=in3->next;
+        node3->intercode->next=in3->next;
         sprintf(in2->content,"%s %s%s\n%s %s%d %s\n",go_to,label,in3->next,LABEL,label,labelnum2,":");
         node5->intercode=in2;
     }
