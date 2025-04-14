@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-29 00:17:18
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-13 22:47:16
+ * @LastEditTime: 2025-04-14 23:04:25
  * @FilePath: /Lab/include/CmmparserTypes.h
  * @Description: CmmparserTypes.h
  * 
@@ -116,6 +116,10 @@ struct Intercode
     int isneednext;
     /// @brief 只有在isneednext为1时才有用
     char* next;
+    /// @brief print or not
+    int isprint;
+    /// @brief 用于传递结果的临时变量存储
+    char* res;
 };
 typedef struct Intercode Intercode;
 typedef struct Intercode* Intercode_ptr;
@@ -187,7 +191,7 @@ struct SemanticInfo
     SemanticFunctionInfo_ptr semanticFunctioninfo;
     SemanticmuldefInfo_ptr semanticmuldefinfo;
     SemanticArrayInfo_ptr semanticarrayinfo;
-    Intercode_ptr intercode;
+    char* temp;
 };
 typedef struct SemanticInfo SemanticInfo;
 typedef struct SemanticInfo* SemanticInfo_ptr;
@@ -221,6 +225,7 @@ struct TreeNode
     int issemanticValue;///用于判断是否为非终结符号
     //用于定义每个符号的语义
     SemanticInfo_ptr SemanticInfo;
+    Intercode_ptr intercode;
 };
 typedef struct TreeNode TreeNode;
 typedef struct TreeNode* TreeNode_ptr;
@@ -301,6 +306,8 @@ extern StringStack_ptr Function_Stack;
 
 
 enum Intercode_kind{
+    /// @brief raw
+    RAW=-1,
     /// @brief 数字
     RELOP=0,
     /// @brief 标号
@@ -337,6 +344,7 @@ void translate(TreeNode_ptr node);
 IntercodeList_ptr initIntercodeList(int initialCapacity);
 void freeIntercodeList(IntercodeList_ptr list);
 void DisplayIntercodelist(TreeNode_ptr node);
+Intercode_ptr new_Intercode_ptr();
 extern IntercodeList_ptr INTERCODELIST;
 
 

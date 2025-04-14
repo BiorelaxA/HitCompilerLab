@@ -120,6 +120,7 @@ TreeNode_ptr create_node(int token, int linenum, int child_count, int issemantic
         node->child_count = 0;
     }
     node->SemanticInfo=create_semanticinfo(node->issemanticValue,node->token);
+    node->intercode=malloc(sizeof(Intercode));
     return node;
 }
 // void add_children(TreeNode_ptr father,TreeNode_ptr child){
@@ -252,7 +253,7 @@ void free_tree(TreeNode_ptr node) {
     }
 
     // 释放 children 数组
-    free(node->children);
+    // free(node->children);
     // 释放节点自身
     free(node);
 }

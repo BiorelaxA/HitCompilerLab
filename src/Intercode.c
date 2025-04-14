@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-04-12 22:09:12
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-14 00:01:50
+ * @LastEditTime: 2025-04-15 00:07:42
  * @FilePath: /Lab/src/Intercode.c
  * @Description: Intercode tranlate
  * 
@@ -43,9 +43,22 @@ void translate_DecList(TreeNode_ptr node);
 void translate_Dec(TreeNode_ptr node);
 void translate_Exp(TreeNode_ptr node);
 void translate_Args(TreeNode_ptr node);
+int alloc_label_number();
 //void addIntercode(IntercodeList_ptr list, Intercode_ptr code);
-char* split_before_colon(const char* str);
+// char* split_before_colon(const char* str);
 char* new_temp();
+char* insert_before_first_newline(const char* original, const char* insert_str);
+
+Intercode_ptr new_Intercode_ptr(){
+    Intercode_ptr ptr=malloc(sizeof(Intercode));
+    ptr->kind=RAW;
+    ptr->isprint=0;
+    ptr->isneednext=0;
+    return ptr;
+}
+
+
+
 // char* concat(int n, ...); 
 //根据规约的产生式来选择tranlate的方式,这个函数将在add_children在bison规约时使用进行分析
 void translate(TreeNode_ptr node){
@@ -132,16 +145,16 @@ void translate_ExtDefList(TreeNode_ptr node){
 /// @param node 父节点
 /// @param intercodelist 存储3地址码的动态数组
 void translate_ExtDef(TreeNode_ptr node){
-    //根据假设不存在函数声明，基本在这里会规约的产生式就2个ExtDecList SEMI(宏定义) / FunDec CompStm（定义函数）
-    if (match_with_var(node,3,SPECIFIER,EXT_DEC_LIST,SEMI)==1)
-    {
+        //根据假设不存在函数声明，基本在这里会规约的产生式就2个ExtDecList SEMI(宏定义) / FunDec CompStm（定义函数）
+    // if (match_with_var(node,3,SPECIFIER,EXT_DEC_LIST,SEMI)==1)
+    // {
         //定义宏定义，这里必然已经加入了hashtable
         //由于假设也没有全局变量，这里不会使用的
         // return;
 
-    }
-    else if (match_with_var(node,3,SPECIFIER,FUN_DEC,COMP_STM)==1)
-    {
+    // }
+    // else if (match_with_var(node,3,SPECIFIER,FUN_DEC,COMP_STM)==1)
+    // {
         //这里可以全搬到FUN_DEC那里去，将函数插入符号表发生在FUN_DEC中,在语义分析是这里只是赋值了类型，这在三地址码中没有必要
 
         //定义了一个函数
@@ -186,7 +199,7 @@ void translate_ExtDef(TreeNode_ptr node){
         //     printf("[trasnlate_ExtDef] function param %s\n",param->content);
         //     //addIntercode(intercodelist,param);
         // }
-    }
+    // }
 }
 /// @brief 这里应该是宏定义名，由于存在假设，这里也不需要考虑
 /// @param node 
@@ -198,6 +211,7 @@ void translate_ExtDecList(TreeNode_ptr node){
 /// @param intercodelist 中间代码存储list
 void translate_Specifier(TreeNode_ptr node){
     //这里是类型定义，也不需要考虑中间代码
+    // node->->intercode=NULL;
 }
 /// @brief 这个structspecifier专门定义结构体
 /// @param node 
@@ -238,7 +252,9 @@ void translate_StructSpecifier(TreeNode_ptr node){
             sprintf(num,"%d",mem);
             // dec_mem->content=concat(3,dec,children1->SemanticInfo->name,num);
             sprintf(dec_mem->content,"%s\t%s\t%s\n",dec,children1->SemanticInfo->name,num);
-            node->SemanticInfo->intercode=dec_mem;
+            // node->SemanticInfo->intercode=dec_mem;
+            dec_mem->isprint=1;
+            children1->intercode=dec_mem;
             printf("[translate_StructSpecifier]:%s\n",dec_mem->content);
         }
     }
@@ -278,11 +294,24 @@ void translate_Fun_Dec(TreeNode_ptr node){
     // 安全地拼接字符串
     size_t len = strlen("FUNCTION") + strlen(func_name) + 1;
     intercode->content = malloc(len);
+    intercode->isprint=1;
     if (intercode->content) {
-        snprintf(intercode->content, len, "FUNCTION%s", func_name);
+        sprintf(intercode->content,"%s %s %s\n","FUNCTION",child->ID,":");
         printf("[translate_ExtDef]:def function intercode is %s\n", intercode->content);
-        node->SemanticInfo->intercode=intercode;
+        // node->SemanticInfo->intercode=intercode;
+        // node->SemanticInfo->intercode->isprint=0;
         //addIntercode(intercodelist, intercode);
+        if (node->child_count==3)
+        {
+            /* code */
+            node->children[2]->intercode=intercode;
+        }
+        else if (node->child_count==4)
+        {
+            node->children[3]->intercode=intercode;
+        }
+        
+        
     }
 }
 /// @brief 这个产生式产生函数参数定义
@@ -297,15 +326,17 @@ void translate_ParamDec(TreeNode_ptr node){
     if (node->child_count==2)
     {
         TreeNode_ptr child=node->children[1];
-        char param[5]="PARAM ";
+        char param[6]="PARAM ";
         Intercode_ptr in=malloc(sizeof(Intercode));
         in->kind=PARAM;
+        in->isprint=1;
         in->content=malloc(50*sizeof(char));
         in->content=strcat(param,child->SemanticInfo->name);
-        node->SemanticInfo->intercode=in;
+        // node->SemanticInfo->intercode=in;
+        child->intercode=in;
     }
     else{
-
+        
     }
     
 }
@@ -322,18 +353,16 @@ void translate_StmtList(TreeNode_ptr node){
     //Stmt StmtList 
     TreeNode_ptr node1=node->children[0];
     TreeNode_ptr node2=node->children[1];
-    if (node1->SemanticInfo->intercode->isneednext==1)
+    if (node1->intercode->next)
     {
-        if (node1->SemanticInfo->intercode->next)
-        {
-            sprintf(node1->SemanticInfo->intercode->next,"%d",node->linenum);
-        }
-        else{
-            node1->SemanticInfo->intercode->next=malloc(50*sizeof(char));
-            sprintf(node1->SemanticInfo->intercode->next,"%d",node->linenum);
-        }
-        
-        
+        int labelnum=alloc_label_number();
+        sprintf(node1->intercode->next,"%d",labelnum);
+        Intercode_ptr in=malloc(sizeof(Intercode));
+        in->kind=LABEL;
+        in->content=malloc(50*sizeof(char));
+        in->isprint=1;
+        sprintf(in->content,"%s %s%d %s\n","LABEL","label",labelnum,":");
+        node2->intercode=in;
     }
 }
 /// @brief 各种表达式
@@ -343,7 +372,7 @@ void translate_Stmt(TreeNode_ptr node){
     if (match_with_var(node,2,EXP,SEMI)==1)
     {
         TreeNode_ptr child=node->children[0];
-        node->SemanticInfo->intercode=malloc(sizeof(Intercode));
+        node->intercode=malloc(sizeof(Intercode));
     }
     else if (match_with_var(node,1,COMP_STM)==1)
     {
@@ -355,165 +384,125 @@ void translate_Stmt(TreeNode_ptr node){
         char re[6]="RETURN";
         Intercode_ptr in=malloc(sizeof(Intercode));
         in->kind=SVT_RETURN;
-        //exp如果是运算式呢，需要s找到计算运算式的中间变量
-        ///如果exp只是一个id，那前面必然已经定义了，这里可以使用
-        if (node2->SemanticInfo->isID==1)
-        {
-            //是变量，则寻找变量名，我们所有中间代码的变量名使用原有变量名，方便寻找
-            printf("[translate_Stmt]:return var name is %s\n",node2->SemanticInfo->name);
-            in->content=strcat("RETURN",node2->SemanticInfo->name);
-            //addIntercode(intercodelist,in);
-        }
-        //todo这里需要exp内容来辨别到底是一个计算式子，还是单纯一个数字
-        else if (node2->SemanticInfo->name==NULL)
-        {
-            if (node2->SemanticInfo->val_type==SVT_INT)
-            {
-                printf("[translate_Stmt]:return int %d\n",node2->intval);
-                char int_val[20];
-                sprintf(int_val,"%d",node2->intval);
-                in->content=strcat("RETURN",int_val);
-                //addIntercode(intercodelist,in);
-            }
-            else if (node2->SemanticInfo->val_type==SVT_FLOAT)
-            {
-                printf("[translate_Stmt]:return int %f\n",node2->floatval);
-                char float_val[20];
-                sprintf(float_val,"%f",node2->floatval);
-                in->content=strcat("RETURN",float_val);
-                //addIntercode(intercodelist,in);
-            }
-            else
-            {
-                in->content="RETURN\n";
-            }
-            
-        }
-        node->SemanticInfo->intercode=in;
+        in->isprint=1;
+        in->content=malloc(50*sizeof(char));
+        sprintf(in->content,"%s %s\n","RETURN",node2->intercode->res);
+        TreeNode_ptr node3=node->children[2];
+        node3->intercode=in;
     }
     else if (match_with_var(node,5,IF,LP,EXP,RP,STMT)==1)
     {
         //IF表达式,这里的exp大多是布尔表达式
         char i_f[2]="IF";
         char go_to[4]="GOTO";
-        char label[5]="LABEL";
+        char label[5]="label";
+        char LABEL[5]="LABEL";
+        TreeNode_ptr node1=node->children[2];
+        TreeNode_ptr node3=node->children[3];
+        TreeNode_ptr node2=node->children[4];
         Intercode_ptr in1=malloc(sizeof(Intercode));
-        in1->kind=JUMP;
-        in1->content=malloc(50*sizeof(char));
-        in1->content="IF";
-        TreeNode_ptr child1=node->children[0];
-        child1->SemanticInfo->intercode=in1;
-
-        TreeNode_ptr child2=node->children[4];
-        //将true和false统一放入RP中
-        TreeNode_ptr child3=node->children[3];
-        Intercode_ptr in3=malloc(sizeof(Intercode));
-        in3->kind=JUMP;
-        in3->content=malloc(50*sizeof(char));
-        in3->isneednext=1;
-        if (child2->SemanticInfo->intercode->isneednext==1)
+        in1->next=malloc(50*sizeof(char));
+        node->intercode=in1;
+        Intercode_ptr in=malloc(sizeof(Intercode));
+        in->kind=JUMP;
+        in->isprint=1;
+        in->content=malloc(50*sizeof(char));
+        int labelnum1=alloc_label_number();
+        if (node2->intercode->next)
         {
-            in3->next=child2->SemanticInfo->intercode->next;
+            in->next=in1->next;
         }
         else{
-            in3->next=malloc(50*sizeof(char));
+            in->next=in1->next;
+            node2->intercode->next=in1->next;
         }
-        Intercode_ptr in2=malloc(sizeof(Intercode));
-        in2->kind=JUMP;
-        in2->content=malloc(50*sizeof(char));
-        sprintf(in2->content,"%s%s%d\n%s%s%s\n%s%d\n",go_to,label,child2->linenum,go_to,label,in3->next,label,child2->linenum);
-        child3->SemanticInfo->intercode=in2;
-        node->SemanticInfo->intercode=in3;
+        sprintf(in->content,"%s %s %s %s%d\n%s %s%s\n%s %s%d %s\n",i_f,node1->intercode->content,go_to,label,labelnum1,go_to,label,in1->next,LABEL,label,labelnum1,":");
+        node3->intercode=in;
+        //todo向上传递next
+        // Intercode_ptr in1=malloc(sizeof(Intercode));
+        // in1->next=in->next;
+        // node->intercode=in1;
     }
     else if (node->child_count==7)
     {
         //IF LP Exp RP Stmt ELSE Stmt  
-        char i_f[2]="IF";
-        char go_to[4]="GOTO";
-        char label[5]="LABEL";
+        char i_f[] = "IF";      // 自动推断长度（3）
+        char go_to[] = "GOTO";  // 自动推断长度（5）
+        char label[] = "label"; // 自动推断长度（6）
+        char LABEL[] = "LABEL"; // 自动推断长度（6）
+        TreeNode_ptr node1=node->children[2];
+        TreeNode_ptr node2=node->children[4];
+        TreeNode_ptr node3=node->children[6];
+        TreeNode_ptr node4=node->children[3];
+        TreeNode_ptr node5=node->children[5];
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->next=malloc(50*sizeof(char));
+        node->intercode=in3;
         Intercode_ptr in1=malloc(sizeof(Intercode));
         in1->kind=JUMP;
         in1->content=malloc(50*sizeof(char));
-        in1->content="IF";
-        TreeNode_ptr child0=node->children[0];
-        child0->SemanticInfo->intercode=in1;
-        printf("%s",child0->SemanticInfo->intercode->content);
-        TreeNode_ptr child1=node->children[3];
-        TreeNode_ptr child2=node->children[4];
-        TreeNode_ptr child3=node->children[6];
+        in1->isprint=1;
+        int c=alloc_label_number();
+        int labelnum1=alloc_label_number();
+        int labelnum2=alloc_label_number();
+        sprintf(in1->content,"%s %s %s %s%d\n%s %s%d\n%s %s%d %s\n",i_f,node1->intercode->content,go_to,label,labelnum1,go_to,label,labelnum2,LABEL,label,labelnum1,":");
+        node4->intercode=in1;
         Intercode_ptr in2=malloc(sizeof(Intercode));
         in2->kind=JUMP;
+        in2->isprint=1;
         in2->content=malloc(50*sizeof(char));
-        sprintf(in2->content,"%s%s%d\n%s%s%d\n%s%d\n",go_to,label,child2->linenum,go_to,label,child3->linenum,label,child2->linenum);
-        child1->SemanticInfo->intercode=in2;
-        Intercode_ptr in3 =malloc(sizeof(Intercode));
-        in3->kind=JUMP;
-        in3->isneednext=1;
-        // in3->next=malloc(50*sizeof(char));
-        //绑定地址
-        if (child2->SemanticInfo->intercode->isneednext==1&&child3->SemanticInfo->intercode->isneednext==1)
-        {
-            //2者的next一致
-            in3->next=child2->SemanticInfo->intercode->next;
-            child3->SemanticInfo->intercode->next=child2->SemanticInfo->intercode->next;
-        }
-        else if (child2->SemanticInfo->intercode->isneednext==1&&child3->SemanticInfo->intercode->next==0)
-        {
-            in3->next=child2->SemanticInfo->intercode->next;
-        }
-        else if (child2->SemanticInfo->intercode->isneednext==0&&child3->SemanticInfo->intercode->next==1)
-        {
-            in3->next=child3->SemanticInfo->intercode->next;
-        }
-        else if (child2->SemanticInfo->intercode->isneednext==0&&child3->SemanticInfo->intercode->next==0)
-        {
-            in3->next=malloc(50*sizeof(char));
-        }
-
-        if (child2->SemanticInfo->intercode->content)
-        {
-            sprintf(child2->SemanticInfo->intercode->content,"%s\n%s%s%s\n",child2->SemanticInfo->intercode->content,go_to,label,in3->next);
-        }else{
-            child2->SemanticInfo->intercode->content=malloc(50*sizeof(char));
-            sprintf(child2->SemanticInfo->intercode->content,"%s%s%s\n",go_to,label,in3->next);
-        }
-        if (child3->SemanticInfo->intercode->content)
-        {
-            sprintf(child3->SemanticInfo->intercode->content,"%s%d\n%s\n%s%s%s\n",label,child3->linenum,child3->SemanticInfo->intercode->content,go_to,label,in3->next);
-        }else{
-            child3->SemanticInfo->intercode->content=malloc(50*sizeof(char));
-            sprintf(child3->SemanticInfo->intercode->content,"%s%d\n%s\n%s%s%s\n",label,child3->linenum,child3->SemanticInfo->intercode->content,go_to,label,in3->next);
-
-        }
-        //sprintf(child3->SemanticInfo->intercode->content,"%s%d\n%s\n%s%s%s\n",label,child3->linenum,child3->SemanticInfo->intercode->content,go_to,label,in3->next);
-        node->SemanticInfo->intercode=in3;
+        node2->intercode->next=in3->next;
+        in2->next=in3->next;
+        sprintf(in2->content,"%s %s%s\n%s %s%d %s\n",go_to,label,in3->next,LABEL,label,labelnum2,":");
+        node5->intercode=in2;
     }
     else if (match_with_var(node,5,WHILE,LP,EXP,RP,STMT))
     {
         char i_f[2]="IF";
         char go_to[4]="GOTO";
-        char label[5]="LABEL";
+        char label[5]="label";
+        char LABEL[5]="LABEL";
         TreeNode_ptr node1=node->children[0];
-        TreeNode_ptr node4=node->children[2];
-        TreeNode_ptr node2=node->children[3];
-        TreeNode_ptr node3=node->children[4];
+        TreeNode_ptr node2=node->children[1];
+        TreeNode_ptr node3=node->children[2];
+        TreeNode_ptr node4=node->children[3];
+        TreeNode_ptr node5=node->children[4];
+        //todo next
+        Intercode_ptr in3=malloc(sizeof(Intercode));
+        in3->next=malloc(50*sizeof(char));
+        node->intercode=in3;
         Intercode_ptr in1=malloc(sizeof(Intercode));
         in1->kind=JUMP;
+        in1->isprint=1;
         in1->content=malloc(50*sizeof(char));
-        in1->content=i_f;
-        node1->SemanticInfo->intercode=in1;
+        // if (node5->intercode->next)
+        // {
+        //     in1->next=node5->intercode->next;
+        // }
+        // else{
+        //     in1->next=malloc(50*sizeof(char));
+        //     node5->intercode->next=in1->next;
+        // }
+        in1->next=in3->next;
+        int labelnum1=alloc_label_number();
+        int labelnum2=alloc_label_number();
+        sprintf(in1->content,"%s %s %s %s%d\n%s %s%s\n%s %s%d %s\n",i_f,node3->intercode->content,go_to,label,labelnum1,go_to,label,in3->next,LABEL,label,labelnum1,":");
+        node3->intercode=in1;
         Intercode_ptr in2=malloc(sizeof(Intercode));
-        in2->kind=JUMP;
+        in2->kind=LABEL;
+        in2->isprint=1;
         in2->content=malloc(50*sizeof(char));
-        Intercode_ptr in3=malloc(sizeof(Intercode));
-        in3->kind=JUMP;
-        in3->isneednext=1;
-        in3->next=malloc(50*sizeof(char));
-        sprintf(in2->content,"%s%s%d\n%s%s%s\n",go_to,label,node3->linenum,go_to,label,in3->next);
-        node2->SemanticInfo->intercode=in2;
-        sprintf(node3->SemanticInfo->intercode->content,"%s%d\n%s\n%s%s%d\n",label,node3->linenum,node3->SemanticInfo->intercode->content,go_to,label,node4->linenum);
-        sprintf(node4->SemanticInfo->intercode->content,"%s%d\n%s",label,node4->linenum,node4->SemanticInfo->intercode->content);
-        node->SemanticInfo->intercode=in3;
+        sprintf(in2->content,"%s %s%d %s\n",LABEL,label,labelnum2,":");
+        node2->intercode=in2;
+        Intercode_ptr in4=malloc(sizeof(Intercode));
+        in4->kind=JUMP;
+        in4->content=malloc(50*sizeof(char));
+        sprintf(in4->content,"%s %s %s\n",go_to,label,labelnum2);
+        in4->isprint=1;
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in4;
+        add_children(node,new_node);
+
     }
 }
 /// @brief 这个产生式用于产生1多个变量定义
@@ -526,7 +515,7 @@ void translate_DefList(TreeNode_ptr node){
 /// @param node 
 /// @param intercodelist 
 void translate_Def(TreeNode_ptr node){
-
+    // node->intercode=NULL;
 }
 /// @brief 产生多个变量
 /// @param node 
@@ -548,8 +537,6 @@ void translate_Exp(TreeNode_ptr node){
     
     if (match_with_var(node,3,EXP,ASSIGNOP,EXP)==1)
     {
-        //赋值，可以现在打印出来
-
         //必须赋值给变量
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
@@ -558,195 +545,253 @@ void translate_Exp(TreeNode_ptr node){
             printf("\033[33m warning: there is only defination for type such as struct,function but not for varaible \033[0m \n");
             return;
         }
-        char *name=node1->SemanticInfo->name;
+        char* node1_temp=node1->intercode->res;
         //来自int
-        Intercode_ptr in1=node2->SemanticInfo->intercode;
         //node2最后产生的变量
-        // char* node2_temp=split_before_colon(in1->content);
-        char node2_temp[2]="v0\0";
-        Intercode_ptr in2=malloc(sizeof(Intercode));
-        in2->kind=ASSIGN;
-        in2->content=malloc(50*sizeof(char));
-        // in2->content=concat(3,node1->SemanticInfo->name," := ",node2_temp);
-        sprintf(in2->content,"%s\t%s\t%s\n",node1->SemanticInfo->name," := ",node2_temp);
-        //addIntercode(intercodelist,in2);
-        node->SemanticInfo->intercode=in2;
+        char* node2_temp=node2->intercode->res;
+        // char node2_temp[2]="v0\0";
+        Intercode_ptr in1=malloc(sizeof(Intercode));
+        in1->kind=ASSIGN;
+        in1->content=malloc(50*sizeof(char));
+        in1->isprint=1;
+        sprintf(in1->content,"%s %s %s\n",node1_temp,":=",node2_temp);
+        //赋值了前面的不用
+        node1->intercode->content=node2->intercode->content;
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in1;
+        add_children(node,1,new_node);
     }
     else if (match_with_var(node,3,EXP,AND,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        //这里不加入list了，在if中会打印的
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        Intercode_ptr in2=node2->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
-        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in1=node1->intercode;
+        Intercode_ptr in2=node2->intercode;
+        char* in1_temp=in1->res;
+        char* in2_temp=in2->res;
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=RELOP;
+        // in3->isprint=1;
+        in3->content=malloc(50*sizeof(char));
         // in3->content=concat(3,in1_temp,"&&",in2_temp);
-        sprintf(in3->content,"%s\t%s\t%s\n",in1_temp,"&&",in2_temp);
-        node->SemanticInfo->intercode=in3;
+        sprintf(in3->content,"%s %s %s",in1_temp,"&&",in2_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
         
     }
     else if (match_with_var(node,3,EXP,OR,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        Intercode_ptr in2=node2->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
-        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in1=node1->intercode;
+        Intercode_ptr in2=node2->intercode;
+        char* in1_temp=in1->res;
+        char* in2_temp=in2->res;
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=RELOP;
+        // in3->isprint=1;
+        in3->content=malloc(50*sizeof(char));
         // in3->content=concat(3,in1_temp,"||",in2_temp);
-        sprintf(in3->content,"%s\t%s\t%s\n",in1_temp,"||",in2_temp);
-        node->SemanticInfo->intercode=in3;
+        sprintf(in3->content,"%s %s %s",in1_temp,"||",in2_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
     }
     else if (match_with_var(node,3,EXP,EQ,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        Intercode_ptr in2=node2->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
-        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in1=node1->intercode;
+        Intercode_ptr in2=node2->intercode;
+        char* in1_temp=in1->res;
+        char* in2_temp=in2->res;
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=RELOP;
-        // in3->content=concat(3,in1_temp,"==",in2_temp);
-        sprintf(in3->content,"%s\t%s\t%s\n",in1_temp,"==",in2_temp);
-        node->SemanticInfo->intercode=in3;
+        // in3->isprint=1;
+        in3->content=malloc(50*sizeof(char));
+        // in3->content=concat(3,in1_temp,"||",in2_temp);
+        sprintf(in3->content,"%s %s %s",in1_temp,"==",in2_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
     }
     else if (match_with_var(node,3,EXP,NEQ,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        Intercode_ptr in2=node2->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
-        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in1=node1->intercode;
+        Intercode_ptr in2=node2->intercode;
+        char* in1_temp=in1->res;
+        char* in2_temp=in2->res;
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=RELOP;
-        // in3->content=concat(3,in1_temp,"!=",in2_temp);
-        sprintf(in3->content,"%s\t%s\t%s\n",in1_temp,"!=",in2_temp);
-        node->SemanticInfo->intercode=in3;
+        // in3->isprint=1;
+        in3->content=malloc(50*sizeof(char));
+        // in3->content=concat(3,in1_temp,"||",in2_temp);
+        sprintf(in3->content,"%s %s %s",in1_temp,"!=",in2_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
     }
     else if (match_with_var(node,3,EXP,LT,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        Intercode_ptr in2=node2->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
-        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in1=node1->intercode;
+        Intercode_ptr in2=node2->intercode;
+        char* in1_temp=in1->res;
+        char* in2_temp=in2->res;
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=RELOP;
-        // in3->content=concat(3,in1_temp,"<",in2_temp);
+        // in3->isprint=1;
         in3->content=malloc(50*sizeof(char));
-        sprintf(in3->content,"%s\t%s\t%s\n",in1_temp,"<",in2_temp);
-        node->SemanticInfo->intercode=in3;
+        // in3->content=concat(3,in1_temp,"||",in2_temp);
+        sprintf(in3->content,"%s %s %s",in1_temp,"<",in2_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
+        node->intercode=malloc(sizeof(Intercode));
+        node->intercode->content=in3->content;
     }
     else if (match_with_var(node,3,EXP,LE,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        Intercode_ptr in2=node2->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
-        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in1=node1->intercode;
+        Intercode_ptr in2=node2->intercode;
+        char* in1_temp=in1->res;
+        char* in2_temp=in2->res;
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=RELOP;
-        // in3->content=concat(3,in1_temp,"<=",in2_temp);
-        sprintf(in3->content,"%s\t%s\t%s\n",in1_temp,"<=",in2_temp);
-        node->SemanticInfo->intercode=in3;
+        // in3->isprint=1;
+        in3->content=malloc(50*sizeof(char));
+        // in3->content=concat(3,in1_temp,"||",in2_temp);
+        sprintf(in3->content,"%s %s %s",in1_temp,"<=",in2_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
     }
     else if (match_with_var(node,3,EXP,GT,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        Intercode_ptr in2=node2->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
-        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in1=node1->intercode;
+        Intercode_ptr in2=node2->intercode;
+        char* in1_temp=in1->res;
+        char* in2_temp=in2->res;
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=RELOP;
-        // in3->content=concat(3,in1_temp,">",in2_temp);
+        // in3->isprint=1;
         in3->content=malloc(50*sizeof(char));
-        sprintf(in3->content,"%s\t%s\t%s\n",in1_temp,">",in2_temp);
-        node->SemanticInfo->intercode=in3;
+        // in3->content=concat(3,in1_temp,"||",in2_temp);
+        sprintf(in3->content,"%s %s %s",in1_temp,">",in2_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
+        node->intercode=malloc(sizeof(Intercode));
+        node->intercode->content=in3->content;
     }
     else if (match_with_var(node,3,EXP,GE,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        Intercode_ptr in2=node2->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
-        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in1=node1->intercode;
+        Intercode_ptr in2=node2->intercode;
+        char* in1_temp=in1->res;
+        char* in2_temp=in2->res;
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=RELOP;
-        // in3->content=concat(3,in1_temp,">=",in2_temp);
-        sprintf(in3->content,"%s\t%s\t%s\n",in1_temp,">=",in2_temp);
-        node->SemanticInfo->intercode=in3;
+        // in3->isprint=1;
+        in3->content=malloc(50*sizeof(char));
+        // in3->content=concat(3,in1_temp,"||",in2_temp);
+        sprintf(in3->content,"%s %s %s",in1_temp,">=",in2_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
     }
     else if (match_with_var(node,3,EXP,PLUS,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        Intercode_ptr in2=node2->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
-        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in1=node1->intercode;
+        Intercode_ptr in2=node2->intercode;
+        char* in1_temp=in1->res;
+        char* in2_temp=in2->res;
         char* new=new_temp();
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=CACULATE;
+        in3->isprint=1;
+        in3->content=malloc(50*sizeof(char));
+        in3->res=malloc(50*sizeof(char));
+        in3->res=new;
         // in3->content=concat(5,new," := ",in1_temp,"+",in2_temp);
-        sprintf(in3->content,"%s\t%s\t%s\t%s\t%s\n",new," := ",in1_temp,"+",in2_temp);
-        node->SemanticInfo->intercode=in3;
+        sprintf(in3->content,"%s %s %s %s %s\n",new," := ",in1_temp,"+",in2_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
     }
     else if (match_with_var(node,3,EXP,MINUS,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        Intercode_ptr in2=node2->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
-        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in1=node1->intercode;
+        Intercode_ptr in2=node2->intercode;
+        char* in1_temp=in1->res;
+        char* in2_temp=in2->res;
         char* new=new_temp();
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=CACULATE;
-        // in3->content=concat(5,new," := ",in1_temp,"-",in2_temp);
-        sprintf(in3->content,"%s\t%s\t%s\t%s\t%s\n",new," := ",in1_temp,"-",in2_temp);
-        node->SemanticInfo->intercode=in3;
+        in3->res=malloc(50*sizeof(char));
+        in3->res=new;
+        in3->isprint=1;
+        in3->content=malloc(50*sizeof(char));
+        sprintf(in3->content,"%s %s %s %s %s\n",new," := ",in1_temp,"-",in2_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
     }
     else if (match_with_var(node,3,EXP,STAR,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        Intercode_ptr in2=node2->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
-        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in1=node1->intercode;
+        Intercode_ptr in2=node2->intercode;
+        char* in1_temp=in1->res;
+        char* in2_temp=in2->res;
         char* new=new_temp();
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=CACULATE;
+        in3->isprint=1;
+        in3->res=malloc(50*sizeof(char));
+        in3->res=new;
+        in3->content=malloc(50*sizeof(char));
         // in3->content=concat(5,new," := ",in1_temp,"*",in2_temp);
-        sprintf(in3->content,"%s\t%s\t%s\t%s\t%s\n",new," := ",in1_temp,"*",in2_temp);
-        node->SemanticInfo->intercode=in3;
+        sprintf(in3->content,"%s %s %s %s %s\n",new," := ",in1_temp,"*",in2_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
     }
     else if (match_with_var(node,3,EXP,DIV,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        Intercode_ptr in2=node2->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
-        char* in2_temp=split_before_colon(in2->content);
+        Intercode_ptr in1=node1->intercode;
+        Intercode_ptr in2=node2->intercode;
+        char* in1_temp=in1->res;
+        char* in2_temp=in2->res;
         char* new=new_temp();
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=CACULATE;
+        in3->isprint=1;
+        in3->res=malloc(50*sizeof(char));
+        in3->res=new;
+        in3->content=malloc(50*sizeof(char));
         // in3->content=concat(5,new," := ",in1_temp,"/",in2_temp);
-        sprintf(in3->content,"%s\t%s\t%s\t%s\t%s\n",new," := ",in1_temp,"/",in2_temp);
-        node->SemanticInfo->intercode=in3;
+        sprintf(in3->content,"%s %s %s %s %s\n",new," := ",in1_temp,"/",in2_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
     }
     else if (match_with_var(node,3,LP,EXP,RP)==1)
     {
@@ -755,48 +800,67 @@ void translate_Exp(TreeNode_ptr node){
     else if (match_with_var(node,2,MINUS,EXP)==1)
     {
         TreeNode_ptr node1=node->children[1];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
+        Intercode_ptr in1=node1->intercode;
 
-        char* in1_temp=split_before_colon(in1->content);
+        char* in1_temp=in1->res;
         char* new=new_temp();
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=CACULATE;
+        in3->isprint=1;
+        in3->res=malloc(50*sizeof(char));
+        in3->res=new;
         in3->content=malloc(50*sizeof(char));
         // in3->content=concat(4,new," := ","-",in1_temp);
-        sprintf(in3->content,"%s\t%s\t%s\t%s\n",new," := ","~",in1_temp);
-        node->SemanticInfo->intercode=in3;
+        sprintf(in3->content,"%s %s %s %s %s\n",new,":=","#0","-",in1_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        node->intercode=malloc(sizeof(Intercode));
+        node->intercode->content=in3->content;
+        node->intercode->res=in3->res;
+        add_children(node,1,new_node);
     }
     else if (match_with_var(node,2,NOT,EXP)==1)
     {
         TreeNode_ptr node1=node->children[0];
-        Intercode_ptr in1=node1->SemanticInfo->intercode;
-        char* in1_temp=split_before_colon(in1->content);
+        Intercode_ptr in1=node1->intercode;
+        char* in1_temp=in1->res;
         char* new=new_temp();
         Intercode_ptr in3=malloc(sizeof(Intercode));
         in3->kind=CACULATE;
+        in3->isprint=1;
+        in3->res=malloc(50*sizeof(char));
+        in3->res=new;
+        in3->content=malloc(50*sizeof(char));
         // in3->content=concat(4,new," := ","!",in1_temp);
-        sprintf(in3->content,"%s\t%s\t%s\t%s\n",new," := ","!",in1_temp);
-        node->SemanticInfo->intercode=in3;
+        sprintf(in3->content,"%s %s %s %s\n",new," := ","!",in1_temp);
+        TreeNode_ptr new_node=create_node(0,0,0,0);
+        new_node->intercode=in3;
+        add_children(node,1,new_node);
     }
     else if (match_with_var(node,4,ID,LP,ARGS,RP)==1)
     {
         //使用带参数函数
         TreeNode_ptr node1=node->children[0];
         TreeNode_ptr node2=node->children[2];
-        Intercode_ptr in1=node2->SemanticInfo->intercode;
-        Intercode_ptr in2=malloc(sizeof(Intercode));
-        in2->kind=ARG;
-        // in2->content=concat(2,"ARG",in1->content);
-        in2->content=malloc(50*sizeof(char));
-        sprintf(in2->content,"%s\t%s\n","ARG",in1->content);
-        //addIntercode(intercodelist,in2);
-        Intercode_ptr in3=malloc(sizeof(Intercode));
-        in3->kind=FUNCTION;
+        Intercode_ptr in1=malloc(sizeof(Intercode));
+        in1->kind=CALL;
+        in1->isprint=1;
         char* temp=new_temp();
-        // in3->content=concat(4,temp," := ","CALL",node1->SemanticInfo->name);
-        in3->content=malloc(50*sizeof(char));
-        sprintf(in3->content,"%s\t%s\t%s\t%s\n",temp," := ","CALL",node1->SemanticInfo->name);
-        //addIntercode(intercodelist,in3);
+        
+        in1->content=malloc(50*sizeof(char));
+        if (strcmp(node1->ID,"write")==0)
+        {
+            char* n_temp=node2->intercode->res;
+            sprintf(in1->content,"%s %s\n","WRITE",n_temp);
+        }
+        else
+        {
+            sprintf(in1->content,"%s %s %s %s\n",temp,":=","call",node1->ID);
+            in1->res=malloc(50*sizeof(char));
+            in1->res=temp;
+        }
+        TreeNode_ptr node3=node->children[3];
+        node3->intercode=in1;
     }
     else if (match_with_var(node,3,ID,LP,RP)==1)
     {
@@ -810,19 +874,34 @@ void translate_Exp(TreeNode_ptr node){
             char* temp=new_temp();
             in->content = malloc(50 * sizeof(char)); 
             // in->content=concat(2,"READ ",temp);
-            sprintf(in->content,"%s\t%s\n","READ",temp);
-            node->SemanticInfo->intercode=in;
+            sprintf(in->content,"%s %s\n","READ",temp);
+            in->res=malloc(50*sizeof(char));
+            in->res=temp;
+            TreeNode_ptr node1=node->children[2];
+            node1->intercode=in;
+            in->isprint=1;
+            node->intercode=malloc(sizeof(Intercode));
+            node->intercode->content=in->content;
+            node->intercode->res=in->res;
             //addIntercode(intercodelist,in);
         }
         else if (strcmp(node1->ID,"write")==0)
         {
+            //事实上用不上这里
             Intercode_ptr in=malloc(sizeof(Intercode));
             in->kind=READ;
+            in->content=malloc(50*sizeof(char));
             char* temp=new_temp();
             // in->content=concat(2,"WRITE ",temp);
-            sprintf(in->content,"%s\t%s\n","WRITE",temp);
-            node->SemanticInfo->intercode=in;
+            sprintf(in->content,"%s %s\n","WRITE",temp);
+            // node->SemanticInfo->intercode=in;
             //addIntercode(intercodelist,in);
+            in->isprint=1;
+            node->children[2]->intercode=in;
+            // in->isprint=1;
+            node->intercode=malloc(sizeof(Intercode));
+            node->intercode->content=in->content;
+            node->intercode->res=in->res;
         }
         else
         {
@@ -830,9 +909,16 @@ void translate_Exp(TreeNode_ptr node){
             in->kind=FUNCTION;
             char* temp=new_temp();
             // in->content=concat(4,temp," := ","CALL ",node1->SemanticInfo->name);
-            sprintf(in->content,"%s\t%s\t%s\t%s\n",temp," := ","CALL",node1->SemanticInfo->name);
-            node->SemanticInfo->intercode=in;
+            sprintf(in->content,"%s %s %s %s\n",temp," := ","CALL",node1->SemanticInfo->name);
+            // node->SemanticInfo->intercode=in;
             //addIntercode(intercodelist,in);
+            in->isprint=1;
+            in->res=malloc(50*sizeof(char));
+            in->res=temp;
+            node->children[2]->intercode=in;
+            node->intercode=malloc(sizeof(Intercode));
+            node->intercode->content=in->content;
+            node->intercode->res=in->res;
         }
     }
     else if (match_with_var(node,4,EXP,LB,EXP,RB)==1)
@@ -847,38 +933,76 @@ void translate_Exp(TreeNode_ptr node){
     else if (match_with_var(node,1,ID)==1)
     {
        //不需要处理
+       TreeNode_ptr node1=node->children[0];
+       Intercode_ptr in1=malloc(sizeof(Intercode));
+       in1->kind=ASSIGN;
+       SemanticInfo_ptr s=hash_table_lookup(GLOBAL_HASH_TABLE,node1->ID);
+       char* temp=NULL;
+       if (s)
+       {    
+            if (s->temp)
+            {
+                //已经有临时变量了
+                temp=s->temp;
+            }
+            else
+            {
+                //没有临时变量
+                temp=new_temp();
+                s->temp=temp;
+            }
+       }
+       in1->content=malloc(50*sizeof(char));
+    //    in1->isprint=1;
+       sprintf(in1->content,"%s %s %s\n",temp,":=",node1->ID);
+       in1->res=malloc(50*sizeof(char));
+       in1->res=temp;
+       node1->intercode=in1;
+       node->intercode=malloc(sizeof(Intercode));
+       node->intercode->content=in1->content;
+       node->intercode->res=in1->res;
     }
     else if (match_with_var(node,1,INT)==1)
     {
         //我们使用#表示立即数
         TreeNode_ptr node1=node->children[0];
         Intercode_ptr in=malloc(sizeof(Intercode));
-        char int_val[10];  // enough for sign, 10 digits, and '\0'
-        printf("%d",node1->intval);
-        sprintf(int_val,"%d",node1->intval);
-        printf("%s",int_val);     
+        // char int_val[10];  // enough for sign, 10 digits, and '\0'
+        // printf("%d",node1->intval);
+        // sprintf(int_val,"%d",node1->intval);
+        // printf("%s",int_val);     
         char* temp=new_temp();
         in->kind=ASSIGN;
+        in->isprint=1;
+        in->res=malloc(50*sizeof(char));
+        in->res=temp;
         in->content=malloc(50*sizeof(char));
         // in->content=concat(4,temp," := ","#",int_val);
-        sprintf(in->content,"%s\t%s\t%s\t%s\n",temp," := ","#",int_val);
+        sprintf(in->content,"%s %s %s%d\n",temp,":=","#",node1->intval);
         printf("[translate_exp]:%s",in->content);
-        node->SemanticInfo->intercode=in;
-        //addIntercode(intercodelist,in);
+        node1->intercode=in;
+        node->intercode=malloc(sizeof(Intercode));
+        node->intercode->content=in->content;
+        node->intercode->res=in->res;
     }
     else if (match_with_var(node,1,FLOAT)==1)
     {
         //我们使用#表示立即数
         TreeNode_ptr node1=node->children[0];
         Intercode_ptr in=malloc(sizeof(Intercode));
-        char float_val[10];
-        sprintf(float_val,"%f",node1->floatval);
+        // char float_val[10];
+        // sprintf(float_val,"%f",node1->floatval);
         char* temp=new_temp();
         in->kind=ASSIGN;
-        sprintf(in->content,"%s\t%s\t%s\t%s\n",temp," := ","#",float_val);
-        node->SemanticInfo->intercode=in;
+        in->isprint=1;
+        in->res=malloc(50*sizeof(char));
+        in->res=temp;
+        sprintf(in->content,"%s %s %s%f\n",temp," := ","#",node1->floatval);
+        node1->intercode=in;
         //addIntercode(intercodelist,in);
-
+        node->intercode=malloc(sizeof(Intercode));
+        node1->intercode->content=in->content;
+        node->intercode->res=in->res;
     }
     else{
 
@@ -888,50 +1012,60 @@ void translate_Args(TreeNode_ptr node){
     if (match_with_var(node,3,EXP,COMMA,ARGS)==1)
     {
         TreeNode_ptr node1=node->children[0];
-        TreeNode_ptr node2=node->children[2];
+        TreeNode_ptr node2=node->children[1];
         Intercode_ptr in1=malloc(sizeof(Intercode));
-        char* temp=split_before_colon(node1->SemanticInfo->intercode->content);
-        in1->kind=ASSIGN;
+        char* temp=node1->intercode->res;
+        in1->kind=PARAM;
+        in1->isprint=1;
+        in1->content=malloc(50*sizeof(char));
         // in1->content=concat(3,node2->SemanticInfo->intercode->content,temp," ");
-        sprintf(in1->content,"%s\t%s\t%s\n",node2->SemanticInfo->intercode->content,temp," ");
-        node->SemanticInfo->intercode=in1;
-
+        sprintf(in1->content,"%s %s\n","ARG",temp);
+        node2->intercode=in1;
     }
     else if (match_with_var(node,1,EXP)==1)
     {
        TreeNode_ptr node1=node->children[0];
        Intercode_ptr in1=malloc(sizeof(Intercode));
-       in1->kind=ASSIGN;
-       char* temp=split_before_colon(node1->SemanticInfo->intercode->content);
-       in1->content=strcat(temp," ");
-       node->SemanticInfo->intercode=in1;
+       in1->kind=PARAM;
+       char* temp=node1->intercode->res;
+    //    char* temp=NULL;
+       in1->isprint=1;
+       in1->content=malloc(50*sizeof(char));
+       sprintf(in1->content,"%s %s\n","ARG",temp);
+    //    in1->content=strcat("PARAM",temp);
+       TreeNode_ptr node2=create_node(0,0,0,0);
+       node2->intercode=in1;
+       node->intercode=malloc(sizeof(Intercode));
+       node->intercode->content=in1->content;
+       node->intercode->res=temp;
+       add_children(node,1,node2);
     }
 }
 
-char* split_before_colon(const char* str) {
-    if (str == NULL) return NULL;  // 检查输入合法性
+// char* split_before_colon(const char* str) {
+//     if (str == NULL) return NULL;  // 检查输入合法性
 
-    // 查找冒号的位置
-    char* colon_pos = strchr(str, ' ');
-    if (colon_pos == NULL) {
-        return NULL;  // 没有冒号则返回 NULL
-    }
+//     // 查找冒号的位置
+//     char* colon_pos = strchr(str, ' ');
+//     if (colon_pos == NULL) {
+//         return NULL;  // 没有冒号则返回 NULL
+//     }
 
-    // 计算冒号前的子字符串长度
-    size_t prefix_len = colon_pos - str;
+//     // 计算冒号前的子字符串长度
+//     size_t prefix_len = colon_pos - str;
 
-    // 动态分配内存（+1 用于存放 '\0'）
-    char* result = (char*)malloc(prefix_len + 1);
-    if (result == NULL) {
-        return NULL;  // 内存分配失败
-    }
+//     // 动态分配内存（+1 用于存放 '\0'）
+//     char* result = (char*)malloc(prefix_len + 1);
+//     if (result == NULL) {
+//         return NULL;  // 内存分配失败
+//     }
 
-    // 复制子字符串
-    strncpy(result, str, prefix_len);
-    result[prefix_len] = '\0';  // 添加终止符
+//     // 复制子字符串
+//     strncpy(result, str, prefix_len);
+//     result[prefix_len] = '\0';  // 添加终止符
 
-    return result;
-}
+//     return result;
+// }
 // 生成临时变量名（需手动释放内存）
 char* new_temp() {
     static int counter = 0;      // 静态计数器
@@ -982,30 +1116,74 @@ void DisplayIntercodelist(TreeNode_ptr node){
     {
         return;
     }
-    if (node->SemanticInfo)
+    if (node->intercode)
     {
         
-        if (node->SemanticInfo->intercode&&node->SemanticInfo->intercode->content)
+        if (node->intercode->content&&node->intercode->isprint==1)
         {
             // printf("%d\n",node->token);
-            printf("%s",node->SemanticInfo->intercode->content);
+            if (node->intercode->next)
+            {
+                //这里由于next的传递在前面已经完成了，所以哪怕已经传递成功，但木已成舟，只能在这里重新组装
+                char* str=insert_before_first_newline(node->intercode->content,node->intercode->next);
+                node->intercode->content=str;
+            }
+            
+            printf("%s",node->intercode->content);
         }
     }
     for (int i = 0; i < node->child_count; i++)
     {
+        // printf("%d %d\n",node->token,node->child_count);
         DisplayIntercodelist(node->children[i]);
     }
 }
-// void dfs(TreeNode *node) {
-//     if (node == NULL) return;
-    
-//     // 1. 访问当前节点（这里打印数据）
-//     printf("%d ", node->data);
-    
-//     // 2. 递归遍历所有子节点
-//     TreeNode *child = node->firstChild;
-//     while (child != NULL) {
-//         dfs(child);          // 递归处理子节点
-//         child = child->nextSibling; // 移动到下一个兄弟节点
-//     }
-// }
+int alloc_label_number(){
+    static int number=1;
+    int raw=number;
+    number++;
+    return raw;
+}
+char* insert_before_first_newline(const char* original, const char* insert_str) {
+    if (!original || !insert_str) return NULL;
+
+    const char* newline_pos = strchr(original, '\n');
+    size_t orig_len = strlen(original);
+    size_t insert_len = strlen(insert_str);
+    size_t total_len;
+
+    // 计算各部分长度
+    if (newline_pos) {
+        size_t prefix_len = newline_pos - original;
+        size_t suffix_len = orig_len - prefix_len;
+        total_len = prefix_len + insert_len + suffix_len + 1;
+    } else {
+        total_len = orig_len + insert_len + 1;
+    }
+
+    // 分配内存
+    char* result = (char*)malloc(total_len);
+    if (!result) return NULL;
+
+    char* dest = result;
+
+    if (newline_pos) {
+        // 处理包含换行符的情况
+        size_t prefix_len = newline_pos - original;
+        memcpy(dest, original, prefix_len);
+        dest += prefix_len;
+        memcpy(dest, insert_str, insert_len);
+        dest += insert_len;
+        memcpy(dest, newline_pos, orig_len - prefix_len);
+    } else {
+        // 处理无换行符的情况
+        memcpy(dest, original, orig_len);
+        dest += orig_len;
+        memcpy(dest, insert_str, insert_len);
+    }
+
+    // 添加字符串终止符
+    result[total_len - 1] = '\0';
+
+    return result;
+}

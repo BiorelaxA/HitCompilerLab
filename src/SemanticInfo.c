@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-27 16:16:31
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-13 18:16:45
+ * @LastEditTime: 2025-04-14 21:51:53
  * @FilePath: /Lab/src/SemanticInfo.c
  * @Description: file to definit semantic information
  * 
@@ -58,7 +58,8 @@ SemanticInfo_ptr create_semanticinfo(int issemanticValue,int token){
     s->isdefined=0;
     s->isID=0;
     s->ismulidef=0;
-    s->intercode=NULL;
+    s->temp=NULL;
+    // s->intercode=new_Intercode_ptr();
     // s->semanticiddefinfo=NULL;
 }
 
