@@ -1,3 +1,13 @@
+<!--
+ * @Author: Peter/peterluck2021@163.com
+ * @Date: 2025-04-15 00:32:32
+ * @LastEditors: Peter/peterluck2021@163.com
+ * @LastEditTime: 2025-04-15 15:32:58
+ * @FilePath: /Lab/README.md
+ * @Description: 
+ * 
+ * Copyright (c) 2025 by peterluck2021@163.com, All Rights Reserved. 
+-->
 # HitCompilerLab
 这里是哈工大编译原理实验，参考来自南京大学编译原理实验
 
@@ -17,6 +27,7 @@ git checkout lab3
 
 # File Struct
 文件结构如下：
+
 ```
 Lab
 ├─ Cmmlexer.l
@@ -29,7 +40,8 @@ Lab
 │  ├─ 实验教程-Project_3.pdf
 │  ├─ 实验教程_Project_2.pdf
 │  ├─ 编译原理实验指导书-中间代码生成.pdf
-│  └─ 编译原理实验指导书-词法分析与语法分析.pdf
+│  ├─ 编译原理实验指导书-词法分析与语法分析.pdf
+│  └─ （新）实验三Web版虚拟机使用说明.pdf
 ├─ include
 │  ├─ CmmparserTypes.h
 │  ├─ HashTable.h
@@ -39,11 +51,14 @@ Lab
 ├─ lab1.c
 ├─ lab2
 ├─ lab2.c
+├─ lab3
+├─ lab3.c
 ├─ lex.yy.c
 ├─ method.txt
 ├─ scanner
 ├─ src
 │  ├─ HashTable.c
+│  ├─ Intercode.c
 │  ├─ SemanticInfo.c
 │  ├─ Stack.c
 │  ├─ TreeNodes.c
