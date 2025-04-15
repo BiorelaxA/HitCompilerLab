@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-27 17:36:44
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-30 00:04:49
+ * @LastEditTime: 2025-04-15 16:03:58
  * @FilePath: /Lab/lab2.c
  * @Description: lab2 main file
  * 
@@ -54,7 +54,7 @@ int main(int argc, char const *argv[])
         return 0;
     }
     else{
-        test_print(getrootnode(),0,output);
+        // test_print(getrootnode(),0,output);
         free_tree(getrootnode());
         return 0;
     }

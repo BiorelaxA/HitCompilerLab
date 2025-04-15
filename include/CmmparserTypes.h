@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-29 00:17:18
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-03-30 11:08:25
+ * @LastEditTime: 2025-04-15 16:04:42
  * @FilePath: /Lab/include/CmmparserTypes.h
  * @Description: CmmparserTypes.h
  * 
@@ -231,7 +231,7 @@ typedef enum SemanticType{
     SVT_VOID=0,
     SVT_STRUCT=3,
     SVT_ERROR=-1,
-};
+}SemanticType;
 
 
 typedef enum SyntaxToken_e{
