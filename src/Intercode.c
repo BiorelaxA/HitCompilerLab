@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-04-12 22:09:12
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-15 16:00:16
+ * @LastEditTime: 2025-04-15 16:07:43
  * @FilePath: /Lab/src/Intercode.c
  * @Description: Intercode tranlate
  * 
@@ -42,11 +42,9 @@ void translate_Dec(TreeNode_ptr node);
 void translate_Exp(TreeNode_ptr node);
 void translate_Args(TreeNode_ptr node);
 int alloc_label_number();
+int get_new_nextlinenumber();
 char* replace_next_with_int(const char* original, int num);
-//void addIntercode(IntercodeList_ptr list, Intercode_ptr code);
-// char* split_before_colon(const char* str);
 char* new_temp();
-// char* insert_before_first_newline(const char* original, const char* insert_str);
 
 Intercode_ptr new_Intercode_ptr(){
     Intercode_ptr ptr=malloc(sizeof(Intercode));
@@ -512,7 +510,7 @@ void translate_Stmt(TreeNode_ptr node){
         sprintf(in1->content,"%s %s %s %s%d\n%s %s%d\n%s %s%d %s\n",i_f,node3->intercode->content,go_to,label,labelnum1,go_to,label,in3->next,LABEL,label,labelnum1,":");
         node3->intercode=in1;
         Intercode_ptr in2=malloc(sizeof(Intercode));
-        in2->kind=LABEL;
+        in2->kind=JUMP;
         in2->isprint=1;
         in2->content=malloc(50*sizeof(char));
         sprintf(in2->content,"%s %s%d %s\n",LABEL,label,labelnum2,":");
@@ -520,11 +518,11 @@ void translate_Stmt(TreeNode_ptr node){
         Intercode_ptr in4=malloc(sizeof(Intercode));
         in4->kind=JUMP;
         in4->content=malloc(50*sizeof(char));
-        sprintf(in4->content,"%s %s %s\n",go_to,label,labelnum2);
+        sprintf(in4->content,"%s %s %d\n",go_to,label,labelnum2);
         in4->isprint=1;
         TreeNode_ptr new_node=create_node(0,0,0,0);
         new_node->intercode=in4;
-        add_children(node,new_node);
+        add_children(node,1,new_node);
 
     }
 }
