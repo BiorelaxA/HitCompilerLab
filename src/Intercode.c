@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-04-12 22:09:12
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-15 15:28:06
+ * @LastEditTime: 2025-04-15 16:00:16
  * @FilePath: /Lab/src/Intercode.c
  * @Description: Intercode tranlate
  * 
@@ -395,7 +395,6 @@ void translate_Stmt(TreeNode_ptr node){
     else if (match_with_var(node,3,RETURN,EXP,SEMI)==1)
     {
         TreeNode_ptr node2=node->children[1];
-        char re[6]="RETURN";
         Intercode_ptr in=malloc(sizeof(Intercode));
         in->kind=SVT_RETURN;
         in->isprint=1;
@@ -824,7 +823,9 @@ void translate_Exp(TreeNode_ptr node){
     }
     else if (match_with_var(node,3,LP,EXP,RP)==1)
     {
-        //不会使用的
+        TreeNode_ptr node1=node->children[1];
+        node->intercode->content=node1->intercode->content;
+        node->intercode->res=node1->intercode->res;
     }
     else if (match_with_var(node,2,MINUS,EXP)==1)
     {
