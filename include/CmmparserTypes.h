@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-29 00:17:18
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-15 00:25:44
+ * @LastEditTime: 2025-04-15 14:16:51
  * @FilePath: /Lab/include/CmmparserTypes.h
  * @Description: CmmparserTypes.h
  * 
@@ -115,7 +115,7 @@ struct Intercode
     /// @brief 是否需要next
     int isneednext;
     /// @brief 只有在isneednext为1时才有用
-    char* next;
+    int next;
     /// @brief print or not
     int isprint;
     /// @brief 用于传递结果的临时变量存储
@@ -227,6 +227,8 @@ struct TreeNode
     //用于定义每个符号的语义
     SemanticInfo_ptr SemanticInfo;
     Intercode_ptr intercode;
+    /// @brief 用于传递next的数组
+    int* next;
 };
 typedef struct TreeNode TreeNode;
 typedef struct TreeNode* TreeNode_ptr;

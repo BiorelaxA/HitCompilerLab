@@ -121,6 +121,7 @@ TreeNode_ptr create_node(int token, int linenum, int child_count, int issemantic
     }
     node->SemanticInfo=create_semanticinfo(node->issemanticValue,node->token);
     node->intercode=malloc(sizeof(Intercode));
+    node->next=NULL;
     return node;
 }
 // void add_children(TreeNode_ptr father,TreeNode_ptr child){

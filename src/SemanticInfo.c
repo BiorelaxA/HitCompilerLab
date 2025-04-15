@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-27 16:16:31
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-14 21:51:53
+ * @LastEditTime: 2025-04-15 14:59:58
  * @FilePath: /Lab/src/SemanticInfo.c
  * @Description: file to definit semantic information
  * 
@@ -774,6 +774,7 @@ void SetHashTable_Stmt(HashTable_ptr hashtable,TreeNode_ptr node){
         //todo 拿到functon在hashtable中的SemanticInfo,怎么拿过来呢
         char* name=pop(Function_Stack);
         printf("[stmt]:%s\n",name);
+        push(Function_Stack,name);
         SemanticInfo_ptr p=hash_table_lookup(hashtable,name);
         TreeNode_ptr child=node->children[1];
         if (p->isfunction==1&&p)
