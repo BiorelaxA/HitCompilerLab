@@ -346,7 +346,7 @@ typedef IntercodeList* IntercodeList_ptr;
 void translate(TreeNode_ptr node);
 IntercodeList_ptr initIntercodeList(int initialCapacity);
 void freeIntercodeList(IntercodeList_ptr list);
-void DisplayIntercodelist(TreeNode_ptr node);
+void DisplayIntercodelist(TreeNode_ptr node,FILE* output);
 Intercode_ptr new_Intercode_ptr();
 extern IntercodeList_ptr INTERCODELIST;
 

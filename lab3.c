@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-04-13 16:16:17
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-13 23:11:57
+ * @LastEditTime: 2025-04-28 17:45:47
  * @FilePath: /Lab/lab3.c
  * @Description: lab3 file
  * 
@@ -36,9 +36,9 @@ int main(int argc, char const *argv[])
         printf("Usage: use scanner with a file along:./scanner file\n");
         return 1;
     }
-    // create_for_output(argv[1]);
+    create_for_output(argv[1]);
     FILE* f=fopen(argv[1],"r");
-    // FILE* output=create_for_output(argv[1]);
+    FILE* output=create_for_output(argv[1]);
     if (!f)
     {
         perror(argv[1]);
@@ -48,7 +48,7 @@ int main(int argc, char const *argv[])
     // yydebug=1;
     yyparse();
     printf("---------------------------\n");
-    DisplayIntercodelist(getrootnode());
+    DisplayIntercodelist(getrootnode(),output);
     // printf("123");
     if (has_error==1)
     {
@@ -72,7 +72,7 @@ FILE* create_for_output(const char* filename) {
     }
 
     // 指定的输出路径，假设输出目录存在且以斜杠结尾
-    const char *output_dir = "/home/shy/CompilerPrinciple/Lab/test/Lab1_test/output/";
+    const char *output_dir = "/home/shy/CompilerPrinciple/Lab/test/Lab3_test/output/";
     
     // 提取文件名部分
     const char *filename_part = strrchr(filename, '/');

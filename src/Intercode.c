@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-04-12 22:09:12
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-15 16:07:43
+ * @LastEditTime: 2025-04-28 17:44:11
  * @FilePath: /Lab/src/Intercode.c
  * @Description: Intercode tranlate
  * 
@@ -1107,7 +1107,7 @@ void freeIntercodeList(IntercodeList_ptr list) {
     list->size = 0;
     list->capacity = 0;
 }
-void DisplayIntercodelist(TreeNode_ptr node){
+void DisplayIntercodelist(TreeNode_ptr node,FILE* output){
     if (node==NULL)
     {
         return;
@@ -1125,13 +1125,14 @@ void DisplayIntercodelist(TreeNode_ptr node){
                 node->intercode->content=str;
             }
             
-            printf("%s",node->intercode->content);
+            // fprintf("%s",node->intercode->content);
+            fprintf(output,"%s",node->intercode->content);
         }
     }
     for (int i = 0; i < node->child_count; i++)
     {
         // printf("%d %d\n",node->token,node->child_count);
-        DisplayIntercodelist(node->children[i]);
+        DisplayIntercodelist(node->children[i],output);
     }
 }
 int alloc_label_number(){
