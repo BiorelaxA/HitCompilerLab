@@ -2,7 +2,7 @@
  * @Author: Peter/peterluck2021@163.com
  * @Date: 2025-03-27 17:36:44
  * @LastEditors: Peter/peterluck2021@163.com
- * @LastEditTime: 2025-04-15 16:03:58
+ * @LastEditTime: 2025-04-15 19:00:46
  * @FilePath: /Lab/lab2.c
  * @Description: lab2 main file
  * 
@@ -60,6 +60,8 @@ int main(int argc, char const *argv[])
     }
     destroy_hash_table(GLOBAL_HASH_TABLE);
     destroy_stack(Function_Stack);
+
+    return 0;
 }
 FILE* create_for_output(const char* filename) {
     if (filename == NULL) {
